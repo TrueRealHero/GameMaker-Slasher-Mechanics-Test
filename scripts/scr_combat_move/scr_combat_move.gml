@@ -11,7 +11,11 @@ function CombatMove(
     _charge_enabled,
     _charge_max,
     _charge_min_multiplier,
-    _charge_max_multiplier
+    _charge_max_multiplier,
+
+    _animation_startup_frames,
+    _animation_active_frames,
+    _animation_recovery_frames
 )
 {
     return {
@@ -33,6 +37,10 @@ function CombatMove(
         charge_max: _charge_max,
 
         charge_min_multiplier: _charge_min_multiplier,
-        charge_max_multiplier: _charge_max_multiplier
+        charge_max_multiplier: _charge_max_multiplier,
+
+        animation_startup_frames: _animation_startup_frames,
+        animation_active_frames: _animation_active_frames,
+        animation_recovery_frames: _animation_recovery_frames
     };
 }

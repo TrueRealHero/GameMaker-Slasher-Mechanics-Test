@@ -59,7 +59,10 @@ function scr_combat_get_attack1(_player)
         false, // charge enabled
         0,      // charge max
         1,
-        1
+        1,
+        2, // animation startup frames
+        2, // animation active frames
+        2  // animation recovery frames
     );
 }
 
@@ -83,7 +86,8 @@ function scr_combat_get_attack2(_player)
         false, // charge enabled
         0,      // charge max
         1,
-        1
+        1,
+        1, 3, 2
     );
 }
 
@@ -107,7 +111,8 @@ function scr_combat_get_attack3(_player)
         true, // charge enabled
         30,    // maximum charge
         1.0,
-        2.0
+        2.0,
+        2, 4, 2
     );
 }
 
@@ -336,35 +341,71 @@ function scr_combat_update_move(_player)
 
 function scr_combat_update_animation(_player, _move)
 {
-    var _total_frames =
-        _move.startup
-        + _move.active
-        + _move.recovery;
+    var _frame_start = 0;
+    var _frame_count = 0;
+    var _phase_progress = 0;
+    var _phase_duration = 0;
 
-    var _sprite_frames = sprite_get_number(_move.sprite);
 
-    var _progress = 0;
-
+    // =====================================
+    // STARTUP
+    // =====================================
 
     if (_player.move_phase == CombatMovePhase.STARTUP)
     {
-        _progress = _player.move_timer;
+        _frame_start = 0;
+        _frame_count = _move.animation_startup_frames;
+
+        _phase_progress = _player.move_timer;
+        _phase_duration = _move.startup;
     }
+
+
+    // =====================================
+    // ACTIVE
+    // =====================================
+
     else if (_player.move_phase == CombatMovePhase.ACTIVE)
     {
-        _progress = _move.startup + _player.move_timer;
+        _frame_start = _move.animation_startup_frames;
+
+        _frame_count = _move.animation_active_frames;
+
+        _phase_progress = _player.move_timer;
+
+        _phase_duration = _move.active;
     }
+
+    // =====================================
+    // RECOVERY
+    // =====================================
+
     else if (_player.move_phase == CombatMovePhase.RECOVERY)
     {
-        _progress = _move.startup + _move.active + _player.move_timer;
+        _frame_start = _move.animation_startup_frames + _move.animation_active_frames;
+
+        _frame_count = _move.animation_recovery_frames;
+
+        _phase_progress = _player.move_timer;
+
+        _phase_duration = _move.recovery;
     }
 
 
-    var _frame =
-        floor( (_progress / _total_frames) * _sprite_frames );
+    // =====================================
+    // CALCULATE FRAME
+    // =====================================
 
-    _player.image_index = clamp( _frame, 0, _sprite_frames - 1 );
+    var _phase_ratio = _phase_progress / _phase_duration;
 
+    _phase_ratio = clamp(_phase_ratio, 0, 0.9999);
+
+    var _local_frame = floor( _phase_ratio * _frame_count );
+
+    var _frame = _frame_start + _local_frame;
+
+
+    _player.image_index = _frame;
     _player.image_speed = 0;
 }
 
