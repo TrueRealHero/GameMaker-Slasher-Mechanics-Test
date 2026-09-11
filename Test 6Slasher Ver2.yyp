@@ -28,7 +28,6 @@
     {"id":{"name":"scr_combat","path":"scripts/scr_combat/scr_combat.yy",},},
     {"id":{"name":"scr_movement","path":"scripts/scr_movement/scr_movement.yy",},},
     {"id":{"name":"scr_PlayerCreate","path":"scripts/scr_PlayerCreate/scr_PlayerCreate.yy",},},
-    {"id":{"name":"scr_special_attack","path":"scripts/scr_special_attack/scr_special_attack.yy",},},
     {"id":{"name":"sAttack1","path":"sprites/sAttack1/sAttack1.yy",},},
     {"id":{"name":"sAttack2","path":"sprites/sAttack2/sAttack2.yy",},},
     {"id":{"name":"sAttack3","path":"sprites/sAttack3/sAttack3.yy",},},
