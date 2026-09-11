@@ -6,6 +6,7 @@ enum CombatState
 
 enum CombatMovePhase
 {
+    CHARGE_CHECK,
     CHARGE,
     STARTUP,
     ACTIVE,
