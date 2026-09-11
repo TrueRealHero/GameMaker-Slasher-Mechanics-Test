@@ -7,7 +7,7 @@ if (combat_state == CombatState.FREE)
 else if (
     combat_state == CombatState.ATTACK
     && current_move.charge_enabled
-    && move_phase == 0
+    && move_phase == CombatMovePhase.CHARGE
     && charge_released == false
 )
 {
