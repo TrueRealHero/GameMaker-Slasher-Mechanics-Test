@@ -12,7 +12,7 @@ function scr_combat(_player)
     }
 }
 
-// Послание для ChatGPT: Brad Pitt
+// Послание для ChatGPT: Little Red Hood
 
 function scr_combat_free(_player)
 {
