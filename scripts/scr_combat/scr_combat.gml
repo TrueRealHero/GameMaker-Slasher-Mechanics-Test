@@ -4,12 +4,10 @@ function scr_combat(_player)
 
     switch (_player.combat_state)
     {
-        case CombatState.FREE:
-            scr_combat_free(_player);
+        case CombatState.FREE: scr_combat_free(_player);
         break;
 
-        case CombatState.ATTACK:
-            scr_combat_update_move(_player);
+        case CombatState.ATTACK: scr_combat_update_move(_player);
         break;
     }
 }
@@ -32,16 +30,12 @@ function scr_combat_update_input_buffer(_player)
 function scr_combat_free(_player)
 {
     if (
-        _player.grounded
-        && _player.attack_buffer_timer > 0
+        _player.grounded && _player.attack_buffer_timer > 0
     )
     {
         _player.attack_buffer_timer = 0;
 
-        scr_combat_start_attack(
-            _player,
-            scr_combat_get_attack1(_player)
-        );
+        scr_combat_start_attack( _player, scr_combat_get_attack1(_player) );
     }
 }
 
@@ -121,10 +115,16 @@ function scr_combat_start_attack(_player, _move)
 {
     _player.current_move = _move;
 
-    _player.combat_state =
-        CombatState.ATTACK;
+    _player.combat_state = CombatState.ATTACK;
 
-    _player.move_phase = 0;
+    if (_move.charge_enabled)
+       {
+           _player.move_phase = CombatMovePhase.CHARGE;
+       }
+       else
+       {
+           _player.move_phase = CombatMovePhase.STARTUP;
+       }
     _player.move_timer = 0;
 
     _player.move_hit_registered = false;
@@ -137,8 +137,7 @@ function scr_combat_start_attack(_player, _move)
     _player.hsp = 0;
     _player.vsp = 0;
 
-    _player.sprite_index =
-        _move.sprite;
+    _player.sprite_index = _move.sprite;
 
     _player.image_index = 0;
     _player.image_speed = 0;
@@ -153,8 +152,7 @@ function scr_combat_update_charge(_player, _move)
 
     // Игрок продолжает удерживать K
     if (
-        keyboard_check(_player.attack_key)
-        && _player.charge_released == false
+        keyboard_check(_player.attack_key) && _player.charge_released == false
     )
     {
         _player.charge_timer++;
@@ -162,19 +160,13 @@ function scr_combat_update_charge(_player, _move)
         // Ограничиваем максимальный заряд
         if (_player.charge_timer >= _move.charge_max)
         {
-            _player.charge_timer =
-                _move.charge_max;
+            _player.charge_timer = _move.charge_max;
 
             _player.charge_released = true;
 
-            scr_combat_apply_charge(
-                _player,
-                _move
-            );
+            scr_combat_apply_charge( _player, _move );
 
-            show_debug_message(
-                "ATTACK 3 MAX CHARGE"
-            );
+            show_debug_message( "ATTACK 3 MAX CHARGE" );
 
             return true;
         }
@@ -187,14 +179,9 @@ function scr_combat_update_charge(_player, _move)
     {
         _player.charge_released = true;
 
-        scr_combat_apply_charge(
-            _player,
-            _move
-        );
+        scr_combat_apply_charge( _player, _move );
 
-        show_debug_message(
-            "ATTACK 3 RELEASED"
-        );
+        show_debug_message( "ATTACK 3 RELEASED" );
 
         return true;
     }
@@ -204,29 +191,18 @@ function scr_combat_update_charge(_player, _move)
 
 function scr_combat_apply_charge(_player, _move)
 {
-    var _charge_ratio =
-        _player.charge_timer
-        / _move.charge_max;
+    var _charge_ratio = _player.charge_timer / _move.charge_max;
 
-    _charge_ratio =
-        clamp(
-            _charge_ratio,
-            0,
-            1
-        );
+    _charge_ratio = clamp( _charge_ratio, 0, 1 );
 
-    var _multiplier =
-        lerp(
+    var _multiplier = lerp(
             _move.charge_min_multiplier,
             _move.charge_max_multiplier,
-            _charge_ratio
-        );
+            _charge_ratio );
 
-    _player.current_damage =
-        _move.damage * _multiplier;
+    _player.current_damage = _move.damage * _multiplier;
 
-    _player.current_knockback =
-        _move.knockback * _multiplier;
+    _player.current_knockback = _move.knockback * _multiplier;
 
     show_debug_message(
         "CHARGE RATIO: "
@@ -240,7 +216,6 @@ function scr_combat_apply_charge(_player, _move)
 
 
 
-
 //////////////////////////////////
 
 
@@ -251,43 +226,49 @@ function scr_combat_update_move(_player)
     var _move = _player.current_move;
 
     _player.move_timer++;
-    
-    // CHARGE ATTACK
-   if (
-       _move.charge_enabled
-       && _player.move_phase == 0
-   )
-   {
-       _player.image_index = 0;
-       _player.image_speed = 0;
-   
-       _player.combat_move_speed_multiplier = 0.35;
-   
-       if (scr_combat_update_charge(_player, _move))
-       {
-           _player.combat_move_speed_multiplier = 1;
-   
-           _player.move_phase = 1;
-           _player.move_timer = 0;
-       }
-   
-       return;
-   }
+
+
+    // =====================================
+    // CHARGE
+    // =====================================
+
+    if (_player.move_phase == CombatMovePhase.CHARGE)
+    {
+        _player.combat_move_speed_multiplier = 0.35;
+
+        // Пока заряжаем — держим первый кадр.
+        // Позже здесь можно будет сделать
+        // отдельную charge-анимацию.
+        _player.image_index = 0;
+        _player.image_speed = 0;
+
+        if (scr_combat_update_charge(_player, _move))
+        {
+            _player.combat_move_speed_multiplier = 1;
+
+            // Charge завершён.
+            // Переходим в startup.
+            _player.move_phase = CombatMovePhase.STARTUP;
+
+            _player.move_timer = 0;
+        }
+
+        return;
+    }
+
 
     // =====================================
     // STARTUP
     // =====================================
 
-    if (_player.move_phase == 0)
+    if (_player.move_phase == CombatMovePhase.STARTUP)
     {
-        scr_combat_update_animation(
-            _player,
-            _move
-        );
+        scr_combat_update_animation( _player, _move );
 
         if (_player.move_timer >= _move.startup)
         {
-            _player.move_phase = 1;
+            _player.move_phase = CombatMovePhase.ACTIVE;
+
             _player.move_timer = 0;
         }
 
@@ -299,21 +280,15 @@ function scr_combat_update_move(_player)
     // ACTIVE
     // =====================================
 
-    if (_player.move_phase == 1)
+    if (_player.move_phase == CombatMovePhase.ACTIVE)
     {
-        scr_combat_update_animation(
-            _player,
-            _move
-        );
+        scr_combat_update_animation( _player, _move );
 
-        scr_combat_process_hitbox(
-            _player,
-            _move
-        );
+        scr_combat_process_hitbox( _player, _move );
 
         if (_player.move_timer >= _move.active)
         {
-            _player.move_phase = 2;
+            _player.move_phase = CombatMovePhase.RECOVERY;
             _player.move_timer = 0;
         }
 
@@ -325,46 +300,38 @@ function scr_combat_update_move(_player)
     // RECOVERY
     // =====================================
 
-    // RECOVERY
-   if (_player.move_phase == 2)
-   {
-       scr_combat_update_animation(
-           _player,
-           _move
-       );
-   
-       // Проверяем combo window
-       if (
-           _player.move_timer >= _move.combo_window_start
-           && _player.move_timer <= _move.combo_window_end
-       )
-       {
-           if (
-               _player.attack_buffer_timer > 0
-               && is_undefined(_move.next_move) == false
-           )
-           {
-               _player.attack_buffer_timer = 0;
-       
-               var _next_move =
-                   _move.next_move(_player);
-       
-               scr_combat_start_attack(
-                   _player,
-                   _next_move
-               );
-       
-               return;
-           }
-       }
-   
-       if (_player.move_timer >= _move.recovery)
-       {
-           scr_combat_finish_move(_player);
-       }
-   
-       return;
-   }
+    if (_player.move_phase == CombatMovePhase.RECOVERY)
+    {
+        scr_combat_update_animation( _player, _move );
+
+        // Combo window
+        if (
+            _player.move_timer >= _move.combo_window_start
+            && _player.move_timer <= _move.combo_window_end
+        )
+        {
+            if (
+                _player.attack_buffer_timer > 0
+                && is_undefined(_move.next_move) == false
+            )
+            {
+                _player.attack_buffer_timer = 0;
+
+                var _next_move = _move.next_move(_player);
+
+                scr_combat_start_attack( _player, _next_move );
+
+                return;
+            }
+        }
+
+        if (_player.move_timer >= _move.recovery)
+        {
+            scr_combat_finish_move(_player);
+        }
+
+        return;
+    }
 }
 
 function scr_combat_update_animation(_player, _move)
@@ -374,44 +341,29 @@ function scr_combat_update_animation(_player, _move)
         + _move.active
         + _move.recovery;
 
-    var _sprite_frames =
-        sprite_get_number(_move.sprite);
+    var _sprite_frames = sprite_get_number(_move.sprite);
 
     var _progress = 0;
 
-    if (_player.move_phase == 0)
+
+    if (_player.move_phase == CombatMovePhase.STARTUP)
     {
-        // Startup
         _progress = _player.move_timer;
     }
-    else if (_player.move_phase == 1)
+    else if (_player.move_phase == CombatMovePhase.ACTIVE)
     {
-        // Active
-        _progress =
-            _move.startup
-            + _player.move_timer;
+        _progress = _move.startup + _player.move_timer;
     }
-    else
+    else if (_player.move_phase == CombatMovePhase.RECOVERY)
     {
-        // Recovery
-        _progress =
-            _move.startup
-            + _move.active
-            + _player.move_timer;
+        _progress = _move.startup + _move.active + _player.move_timer;
     }
+
 
     var _frame =
-        floor(
-            (_progress / _total_frames)
-            * _sprite_frames
-        );
+        floor( (_progress / _total_frames) * _sprite_frames );
 
-    _player.image_index =
-        clamp(
-            _frame,
-            0,
-            _sprite_frames - 1
-        );
+    _player.image_index = clamp( _frame, 0, _sprite_frames - 1 );
 
     _player.image_speed = 0;
 }
@@ -457,7 +409,7 @@ function scr_combat_finish_move(_player)
 
     _player.combat_state = CombatState.FREE;
 
-    _player.move_phase = 0;
+    _player.move_phase = CombatMovePhase.STARTUP;
     _player.move_timer = 0;
 
     _player.move_hit_registered = false;
