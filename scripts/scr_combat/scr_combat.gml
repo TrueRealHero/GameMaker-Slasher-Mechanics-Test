@@ -119,14 +119,18 @@ function scr_combat_start_attack(_player, _move)
 
     _player.combat_state = CombatState.ATTACK;
 
+    // Заряжаемый Attack 3 сначала проходит проверку:
+    // игрок должен удерживать K достаточно долго,
+    // чтобы перейти в настоящий CHARGE.
     if (_move.charge_enabled)
-       {
-           _player.move_phase = CombatMovePhase.CHARGE;
-       }
-       else
-       {
-           _player.move_phase = CombatMovePhase.STARTUP;
-       }
+    {
+        _player.move_phase = CombatMovePhase.CHARGE_CHECK;
+    }
+    else
+    {
+        _player.move_phase = CombatMovePhase.STARTUP;
+    }
+
     _player.move_timer = 0;
 
     _player.move_hit_registered = false;
@@ -229,6 +233,52 @@ function scr_combat_update_move(_player)
 
 
     // =====================================
+    // CHARGE CHECK
+    // =====================================
+
+    if (_player.move_phase == CombatMovePhase.CHARGE_CHECK)
+    {
+        // Тот же самый спрайт, что и у Attack 3.
+        // Пока проверяем намерение игрока — показываем первый кадр.
+        _player.sprite_index = _move.sprite;
+        _player.image_index = 0;
+        _player.image_speed = 0;
+
+        // Отпустили K раньше 0.5 секунды:
+        // это обычный третий удар без заряда.
+        if (keyboard_check(_player.attack_key) == false)
+        {
+            _player.combat_move_speed_multiplier = 1;
+            _player.move_phase = CombatMovePhase.STARTUP;
+            _player.move_timer = 0;
+
+            return;
+        }
+
+        // 30 кадров при 60 FPS = примерно 0.5 секунды.
+        // Если K всё это время удерживается — начинаем настоящий charge.
+        if (_player.move_timer >= 30)
+        {
+            _player.move_phase = CombatMovePhase.CHARGE;
+            _player.move_timer = 0;
+            _player.charge_timer = 0;
+            _player.charge_released = false;
+
+            _player.combat_move_speed_multiplier = 0.35;
+
+            // Charge использует тот же Attack 3 sprite.
+            _player.sprite_index = _move.sprite;
+            _player.image_index = 0;
+            _player.image_speed = 0;
+
+            show_debug_message( "ATTACK 3 CHARGE STARTED" );
+        }
+
+        return;
+    }
+
+
+    // =====================================
     // CHARGE
     // =====================================
 
@@ -236,9 +286,8 @@ function scr_combat_update_move(_player)
     {
         _player.combat_move_speed_multiplier = 0.35;
 
-        // Пока заряжаем — держим первый кадр.
-        // Позже здесь можно будет сделать
-        // отдельную charge-анимацию.
+        // Charge использует тот же спрайт Attack 3.
+        _player.sprite_index = _move.sprite;
         _player.image_index = 0;
         _player.image_speed = 0;
 
@@ -247,7 +296,7 @@ function scr_combat_update_move(_player)
             _player.combat_move_speed_multiplier = 1;
 
             // Charge завершён.
-            // Переходим в startup.
+            // Переходим в startup обычной боевой временной шкалы.
             _player.move_phase = CombatMovePhase.STARTUP;
 
             _player.move_timer = 0;
@@ -464,4 +513,3 @@ function scr_combat_finish_move(_player)
     _player.sprite_index =
     _player.spriteIdle;
 }
-
