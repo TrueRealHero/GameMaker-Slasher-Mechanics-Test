@@ -41,8 +41,7 @@ function scr_combat_free(_player)
 
 function scr_combat_get_attack1(_player)
 {
-    return CombatMove(
-        _player.spriteAttack1,
+    return CombatMove( _player.spriteAttack1,
 
         3,  // startup
         3,  // active
@@ -68,8 +67,7 @@ function scr_combat_get_attack1(_player)
 
 function scr_combat_get_attack2(_player)
 {
-    return CombatMove(
-        _player.spriteAttack2,
+    return CombatMove(_player.spriteAttack2,
 
         3,  // startup
         3,  // active
@@ -93,8 +91,7 @@ function scr_combat_get_attack2(_player)
 
 function scr_combat_get_attack3(_player)
 {
-    return CombatMove(
-        _player.spriteAttack3,
+    return CombatMove(_player.spriteAttack3,
 
         3,  // startup
         3,  // active
@@ -200,9 +197,7 @@ function scr_combat_apply_charge(_player, _move)
 
     _charge_ratio = clamp( _charge_ratio, 0, 1 );
 
-    var _multiplier = lerp(
-            _move.charge_min_multiplier,
-            _move.charge_max_multiplier,
+    var _multiplier = lerp( _move.charge_min_multiplier, _move.charge_max_multiplier,
             _charge_ratio );
 
     _player.current_damage = _move.damage * _multiplier;
