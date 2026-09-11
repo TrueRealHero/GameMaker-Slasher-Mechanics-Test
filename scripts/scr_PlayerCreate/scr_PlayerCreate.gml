@@ -31,6 +31,8 @@ function PlayerCreate(){
      move_timer = 0;
     move_hit_registered = false;
     attack_buffer_timer = 0;
+    charge_timer = 0;
+    charge_released = false;
     
     
 }

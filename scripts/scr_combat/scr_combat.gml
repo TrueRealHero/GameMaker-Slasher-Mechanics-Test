@@ -60,7 +60,10 @@ function scr_combat_get_attack1(_player)
         2,  // combo window start
         6,  // combo window end
 
-        scr_combat_get_attack2 // next move
+        scr_combat_get_attack2,
+
+        false, // charge enabled
+        0      // charge max
     );
 }
 
@@ -79,7 +82,32 @@ function scr_combat_get_attack2(_player)
         2,  // combo window start
         6,  // combo window end
 
-        undefined // next move пока нет
+        scr_combat_get_attack3,
+
+        false, // charge enabled
+        0      // charge max
+    );
+}
+
+function scr_combat_get_attack3(_player)
+{
+    return CombatMove(
+        _player.spriteAttack3,
+
+        3,  // startup
+        3,  // active
+        6,  // recovery
+
+        20, // damage
+        7,  // knockback
+
+        0,  // combo window start
+        0,  // combo window end
+
+        undefined,
+
+        true, // charge enabled
+        30    // maximum charge
     );
 }
 
@@ -94,6 +122,8 @@ function scr_combat_start_attack(_player, _move)
     _player.move_timer = 0;
 
     _player.move_hit_registered = false;
+    _player.charge_timer = 0;
+    _player.charge_released = false;
 
     _player.hsp = 0;
     _player.vsp = 0;
@@ -105,11 +135,79 @@ function scr_combat_start_attack(_player, _move)
     _player.image_speed = 0;
 }
 
+function scr_combat_update_charge(_player, _move)
+{
+    if (_move.charge_enabled == false)
+    {
+        return false;
+    }
+
+    // Игрок продолжает удерживать K
+    if (
+        keyboard_check(_player.attack_key)
+        && _player.charge_released == false
+    )
+    {
+        _player.charge_timer++;
+
+        // Достигли максимального заряда
+        if (_player.charge_timer >= _move.charge_max)
+        {
+            _player.charge_timer =
+                _move.charge_max;
+
+            _player.charge_released = true;
+
+            show_debug_message(
+                "ATTACK 3 MAX CHARGE"
+            );
+
+            return true;
+        }
+
+        return false;
+    }
+
+    // Кнопку отпустили
+    if (_player.charge_released == false)
+    {
+        _player.charge_released = true;
+
+        show_debug_message(
+            "ATTACK 3 RELEASED"
+        );
+
+        return true;
+    }
+
+    return false;
+}
+
 function scr_combat_update_move(_player)
 {
     var _move = _player.current_move;
 
     _player.move_timer++;
+    
+    // CHARGE ATTACK
+   if (
+       _move.charge_enabled
+       && _player.move_phase == 0
+   )
+    
+   {
+        _player.image_index = 0;
+        _player.image_speed = 0;    
+        
+    
+       if (scr_combat_update_charge(_player, _move))
+       {
+           _player.move_phase = 1;
+           _player.move_timer = 0;
+       }
+   
+       return;
+   }
 
     // =====================================
     // STARTUP

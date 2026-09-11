@@ -7,7 +7,9 @@ function CombatMove(
     _knockback,
     _combo_window_start,
     _combo_window_end,
-    _next_move
+    _next_move,
+    _charge_enabled,
+    _charge_max
 )
 {
     return {
@@ -23,6 +25,9 @@ function CombatMove(
         combo_window_start: _combo_window_start,
         combo_window_end: _combo_window_end,
 
-        next_move: _next_move
+        next_move: _next_move,
+
+        charge_enabled: _charge_enabled,
+        charge_max: _charge_max
     };
 }
