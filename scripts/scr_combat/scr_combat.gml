@@ -293,7 +293,7 @@ function scr_combat_update_move(_player)
 
         if (scr_combat_update_charge(_player, _move))
         {
-            _player.combat_move_speed_multiplier = 1;
+            _player.combat_move_speed_multiplier = 0.35;
 
             // Charge завершён.
             // Переходим в startup обычной боевой временной шкалы.
