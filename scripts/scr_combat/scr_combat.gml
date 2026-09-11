@@ -12,6 +12,8 @@ function scr_combat(_player)
     }
 }
 
+// Послание для ChatGPT: Brad Pitt
+
 function scr_combat_free(_player)
 {
     if (
