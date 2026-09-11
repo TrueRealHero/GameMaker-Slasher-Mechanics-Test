@@ -12,6 +12,20 @@ function scr_combat(_player)
     }
 }
 
+function scr_combat_free(_player)
+{
+    if (
+        _player.grounded
+        && keyboard_check_pressed(_player.attack_key)
+    )
+    {
+        scr_combat_start_attack(
+            _player,
+            scr_combat_get_attack1(_player)
+        );
+    }
+}
+
 function scr_combat_get_attack1(_player)
 {
     return CombatMove(
