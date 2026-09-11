@@ -1,0 +1,49 @@
+{
+  "$GMProject":"v1",
+  "%Name":"Test 6Slasher Ver2",
+  "AudioGroups":[
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+  ],
+  "configs":{
+    "children":[],
+    "name":"Default",
+  },
+  "defaultScriptType":1,
+  "Folders":[
+    {"$GMFolder":"","%Name":"PlayerSprites","folderPath":"folders/PlayerSprites.yy","name":"PlayerSprites","resourceType":"GMFolder","resourceVersion":"2.0",},
+  ],
+  "ForcedPrefabProjectReferences":[],
+  "IncludedFiles":[],
+  "isEcma":false,
+  "LibraryEmitters":[],
+  "MetaData":{
+    "IDEVersion":"2026.0.0.16",
+  },
+  "name":"Test 6Slasher Ver2",
+  "resources":[
+    {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},},
+    {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"id":{"name":"scr_combat","path":"scripts/scr_combat/scr_combat.yy",},},
+    {"id":{"name":"scr_movement","path":"scripts/scr_movement/scr_movement.yy",},},
+    {"id":{"name":"scr_PlayerCreate","path":"scripts/scr_PlayerCreate/scr_PlayerCreate.yy",},},
+    {"id":{"name":"scr_special_attack","path":"scripts/scr_special_attack/scr_special_attack.yy",},},
+    {"id":{"name":"sAttack1","path":"sprites/sAttack1/sAttack1.yy",},},
+    {"id":{"name":"sAttack2","path":"sprites/sAttack2/sAttack2.yy",},},
+    {"id":{"name":"sAttack3","path":"sprites/sAttack3/sAttack3.yy",},},
+    {"id":{"name":"sAttackSpecial1","path":"sprites/sAttackSpecial1/sAttackSpecial1.yy",},},
+    {"id":{"name":"sIdle","path":"sprites/sIdle/sIdle.yy",},},
+    {"id":{"name":"sJump","path":"sprites/sJump/sJump.yy",},},
+    {"id":{"name":"Sprite2","path":"sprites/Sprite2/Sprite2.yy",},},
+    {"id":{"name":"sRun","path":"sprites/sRun/sRun.yy",},},
+    {"id":{"name":"TileSet1","path":"tilesets/TileSet1/TileSet1.yy",},},
+  ],
+  "resourceType":"GMProject",
+  "resourceVersion":"2.0",
+  "RoomOrderNodes":[
+    {"roomId":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+  ],
+  "templateType":"game",
+  "TextureGroups":[
+    {"$GMTextureGroup":"","%Name":"Default","autocrop":true,"border":2,"compressFormat":"bz2","customOptions":"","directory":"","groupParent":null,"isScaled":true,"loadType":"default","mipsToGenerate":0,"name":"Default","resourceType":"GMTextureGroup","resourceVersion":"2.0","targets":-1,},
+  ],
+}
