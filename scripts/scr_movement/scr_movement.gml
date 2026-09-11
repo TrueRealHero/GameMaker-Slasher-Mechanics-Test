@@ -18,9 +18,7 @@ function scr_movement_horizontal(_player)
     var _input = keyboard_check(ord("D")) - keyboard_check(ord("A"));
 
     // Скорость зависит от состояния Shift
-    var _speed = keyboard_check(vk_shift)
-        ? _player.runspeed
-        : _player.walkspeed;
+    var _speed = _player.walkspeed * _player.combat_move_speed_multiplier;
 
     _player.hsp = _input * _speed;
 

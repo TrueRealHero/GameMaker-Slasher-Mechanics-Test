@@ -9,7 +9,9 @@ function CombatMove(
     _combo_window_end,
     _next_move,
     _charge_enabled,
-    _charge_max
+    _charge_max,
+    _charge_min_multiplier,
+    _charge_max_multiplier
 )
 {
     return {
@@ -28,6 +30,9 @@ function CombatMove(
         next_move: _next_move,
 
         charge_enabled: _charge_enabled,
-        charge_max: _charge_max
+        charge_max: _charge_max,
+
+        charge_min_multiplier: _charge_min_multiplier,
+        charge_max_multiplier: _charge_max_multiplier
     };
 }

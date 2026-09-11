@@ -63,7 +63,9 @@ function scr_combat_get_attack1(_player)
         scr_combat_get_attack2,
 
         false, // charge enabled
-        0      // charge max
+        0,      // charge max
+        1,
+        1
     );
 }
 
@@ -85,7 +87,9 @@ function scr_combat_get_attack2(_player)
         scr_combat_get_attack3,
 
         false, // charge enabled
-        0      // charge max
+        0,      // charge max
+        1,
+        1
     );
 }
 
@@ -107,7 +111,9 @@ function scr_combat_get_attack3(_player)
         undefined,
 
         true, // charge enabled
-        30    // maximum charge
+        30,    // maximum charge
+        1.0,
+        2.0
     );
 }
 
@@ -124,6 +130,9 @@ function scr_combat_start_attack(_player, _move)
     _player.move_hit_registered = false;
     _player.charge_timer = 0;
     _player.charge_released = false;
+    
+    _player.current_damage = _move.damage;
+    _player.current_knockback = _move.knockback;
 
     _player.hsp = 0;
     _player.vsp = 0;
@@ -150,13 +159,18 @@ function scr_combat_update_charge(_player, _move)
     {
         _player.charge_timer++;
 
-        // Достигли максимального заряда
+        // Ограничиваем максимальный заряд
         if (_player.charge_timer >= _move.charge_max)
         {
             _player.charge_timer =
                 _move.charge_max;
 
             _player.charge_released = true;
+
+            scr_combat_apply_charge(
+                _player,
+                _move
+            );
 
             show_debug_message(
                 "ATTACK 3 MAX CHARGE"
@@ -173,6 +187,11 @@ function scr_combat_update_charge(_player, _move)
     {
         _player.charge_released = true;
 
+        scr_combat_apply_charge(
+            _player,
+            _move
+        );
+
         show_debug_message(
             "ATTACK 3 RELEASED"
         );
@@ -182,6 +201,50 @@ function scr_combat_update_charge(_player, _move)
 
     return false;
 }
+
+function scr_combat_apply_charge(_player, _move)
+{
+    var _charge_ratio =
+        _player.charge_timer
+        / _move.charge_max;
+
+    _charge_ratio =
+        clamp(
+            _charge_ratio,
+            0,
+            1
+        );
+
+    var _multiplier =
+        lerp(
+            _move.charge_min_multiplier,
+            _move.charge_max_multiplier,
+            _charge_ratio
+        );
+
+    _player.current_damage =
+        _move.damage * _multiplier;
+
+    _player.current_knockback =
+        _move.knockback * _multiplier;
+
+    show_debug_message(
+        "CHARGE RATIO: "
+        + string(_charge_ratio)
+        + " | DAMAGE: "
+        + string(_player.current_damage)
+        + " | KNOCKBACK: "
+        + string(_player.current_knockback)
+    );
+}
+
+
+
+
+//////////////////////////////////
+
+
+
 
 function scr_combat_update_move(_player)
 {
@@ -194,14 +257,16 @@ function scr_combat_update_move(_player)
        _move.charge_enabled
        && _player.move_phase == 0
    )
-    
    {
-        _player.image_index = 0;
-        _player.image_speed = 0;    
-        
-    
+       _player.image_index = 0;
+       _player.image_speed = 0;
+   
+       _player.combat_move_speed_multiplier = 0.35;
+   
        if (scr_combat_update_charge(_player, _move))
        {
+           _player.combat_move_speed_multiplier = 1;
+   
            _player.move_phase = 1;
            _player.move_timer = 0;
        }
@@ -390,18 +455,25 @@ function scr_combat_finish_move(_player)
 {
     _player.current_move = undefined;
 
-    _player.combat_state =
-        CombatState.FREE;
+    _player.combat_state = CombatState.FREE;
 
     _player.move_phase = 0;
     _player.move_timer = 0;
 
     _player.move_hit_registered = false;
 
+    _player.charge_timer = 0;
+    _player.charge_released = false;
+
+    _player.current_damage = 0;
+    _player.current_knockback = 0;
+
+    _player.combat_move_speed_multiplier = 1;
+
     _player.image_index = 0;
     _player.image_speed = 1;
 
     _player.sprite_index =
-        _player.spriteIdle;
+    _player.spriteIdle;
 }
 

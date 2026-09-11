@@ -1,38 +1,44 @@
 function PlayerCreate(){
     //room_speed = 10
      
-     ground = layer_tilemap_get_id("Col");
+    ground = layer_tilemap_get_id("Col");
      
-     hsp = 0;
-     vsp = 0;
+    hsp = 0;
+    vsp = 0;
      
-     jump_speed = -11;
-     walkspeed = 4;
-     runspeed = 7;
+    jump_speed = -11;
+    walkspeed = 4;
+    runspeed = 7;
      
-     facing = 1;
-     grounded = false;
+    facing = 1;
+    grounded = false;
+    
+    spriteIdle = sIdle;
+    spriteRun = sRun;
+    spriteJump = sJump;
      
-     spriteIdle = sIdle;
-     spriteRun = sRun;
-     spriteJump = sJump;
-     
-     spriteAttack1 = sAttack1;
-     spriteAttack2 = sAttack2;
-     spriteAttack3 = sAttack3;
-     spriteAttackSp1 = sAttackSpecial1;
+    spriteAttack1 = sAttack1;
+    spriteAttack2 = sAttack2;
+    spriteAttack3 = sAttack3;
+    spriteAttackSp1 = sAttackSpecial1;
      
      // Клавиша
-     attack_key = ord("K");
+    attack_key = ord("K");
     
     combat_state = CombatState.FREE;
-     current_move = undefined;
-     move_phase = 0;
-     move_timer = 0;
+    current_move = undefined;
+    move_phase = 0;
+    move_timer = 0;
+    
     move_hit_registered = false;
     attack_buffer_timer = 0;
+    
     charge_timer = 0;
     charge_released = false;
     
+    current_damage = 0;
+    current_knockback = 0;
+    
+    combat_move_speed_multiplier = 1;
     
 }
