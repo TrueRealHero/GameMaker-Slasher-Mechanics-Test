@@ -30,6 +30,7 @@ function PlayerCreate(){
      move_phase = 0;
      move_timer = 0;
     move_hit_registered = false;
+    attack_buffer_timer = 0;
     
     
 }

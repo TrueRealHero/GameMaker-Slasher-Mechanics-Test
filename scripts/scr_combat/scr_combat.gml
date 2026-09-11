@@ -1,5 +1,7 @@
 function scr_combat(_player)
 {
+    scr_combat_update_input_buffer(_player);
+
     switch (_player.combat_state)
     {
         case CombatState.FREE:
@@ -12,15 +14,30 @@ function scr_combat(_player)
     }
 }
 
-// Послание для ChatGPT: Little Red Hood
+function scr_combat_update_input_buffer(_player)
+{
+    // Нажали K — запоминаем ввод
+    if (keyboard_check_pressed(_player.attack_key))
+    {
+        _player.attack_buffer_timer = 6;
+    }
+
+    // Уменьшаем время хранения ввода
+    if (_player.attack_buffer_timer > 0)
+    {
+        _player.attack_buffer_timer--;
+    }
+}
 
 function scr_combat_free(_player)
 {
     if (
         _player.grounded
-        && keyboard_check_pressed(_player.attack_key)
+        && _player.attack_buffer_timer > 0
     )
     {
+        _player.attack_buffer_timer = 0;
+
         scr_combat_start_attack(
             _player,
             scr_combat_get_attack1(_player)
@@ -38,7 +55,12 @@ function scr_combat_get_attack1(_player)
         6,  // recovery
 
         10, // damage
-        3   // knockback
+        3,  // knockback
+
+        2,  // combo window start
+        6,  // combo window end
+
+        undefined // next move
     );
 }
 
@@ -121,20 +143,43 @@ function scr_combat_update_move(_player)
     // RECOVERY
     // =====================================
 
-    if (_player.move_phase == 2)
-    {
-        scr_combat_update_animation(
-            _player,
-            _move
-        );
-
-        if (_player.move_timer >= _move.recovery)
-        {
-            scr_combat_finish_move(_player);
-        }
-
-        return;
-    }
+    // RECOVERY
+   if (_player.move_phase == 2)
+   {
+       scr_combat_update_animation(
+           _player,
+           _move
+       );
+   
+       // Проверяем combo window
+       if (
+           _player.move_timer >= _move.combo_window_start
+           && _player.move_timer <= _move.combo_window_end
+       )
+       {
+           if (_player.attack_buffer_timer > 0)
+           {
+               _player.attack_buffer_timer = 0;
+   
+               show_debug_message(
+                   "COMBO INPUT ACCEPTED"
+               );
+   
+               // Позже здесь будет:
+               // scr_combat_start_attack(
+               //     _player,
+               //     _move.next_move
+               // );
+           }
+       }
+   
+       if (_player.move_timer >= _move.recovery)
+       {
+           scr_combat_finish_move(_player);
+       }
+   
+       return;
+   }
 }
 
 function scr_combat_update_animation(_player, _move)

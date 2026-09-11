@@ -4,7 +4,10 @@ function CombatMove(
     _active,
     _recovery,
     _damage,
-    _knockback
+    _knockback,
+    _combo_window_start,
+    _combo_window_end,
+    _next_move
 )
 {
     return {
@@ -15,6 +18,11 @@ function CombatMove(
         recovery: _recovery,
 
         damage: _damage,
-        knockback: _knockback
+        knockback: _knockback,
+
+        combo_window_start: _combo_window_start,
+        combo_window_end: _combo_window_end,
+
+        next_move: _next_move
     };
 }
