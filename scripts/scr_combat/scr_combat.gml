@@ -60,7 +60,26 @@ function scr_combat_get_attack1(_player)
         2,  // combo window start
         6,  // combo window end
 
-        undefined // next move
+        scr_combat_get_attack2 // next move
+    );
+}
+
+function scr_combat_get_attack2(_player)
+{
+    return CombatMove(
+        _player.spriteAttack2,
+
+        3,  // startup
+        3,  // active
+        6,  // recovery
+
+        12, // damage
+        4,  // knockback
+
+        2,  // combo window start
+        6,  // combo window end
+
+        undefined // next move пока нет
     );
 }
 
@@ -157,19 +176,22 @@ function scr_combat_update_move(_player)
            && _player.move_timer <= _move.combo_window_end
        )
        {
-           if (_player.attack_buffer_timer > 0)
+           if (
+               _player.attack_buffer_timer > 0
+               && is_undefined(_move.next_move) == false
+           )
            {
                _player.attack_buffer_timer = 0;
-   
-               show_debug_message(
-                   "COMBO INPUT ACCEPTED"
+       
+               var _next_move =
+                   _move.next_move(_player);
+       
+               scr_combat_start_attack(
+                   _player,
+                   _next_move
                );
-   
-               // Позже здесь будет:
-               // scr_combat_start_attack(
-               //     _player,
-               //     _move.next_move
-               // );
+       
+               return;
            }
        }
    
