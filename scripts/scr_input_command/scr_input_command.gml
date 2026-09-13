@@ -1,3 +1,3 @@
-function Script8(){
+function scr_input_command(){
 
 }
