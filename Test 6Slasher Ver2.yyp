@@ -27,6 +27,7 @@
     {"id":{"name":"scr_combat_move","path":"scripts/scr_combat_move/scr_combat_move.yy",},},
     {"id":{"name":"scr_combat_state","path":"scripts/scr_combat_state/scr_combat_state.yy",},},
     {"id":{"name":"scr_combat","path":"scripts/scr_combat/scr_combat.yy",},},
+    {"id":{"name":"scr_fire_ball","path":"scripts/scr_fire_ball/scr_fire_ball.yy",},},
     {"id":{"name":"scr_input_command","path":"scripts/scr_input_command/scr_input_command.yy",},},
     {"id":{"name":"scr_input_history","path":"scripts/scr_input_history/scr_input_history.yy",},},
     {"id":{"name":"scr_movement","path":"scripts/scr_movement/scr_movement.yy",},},
