@@ -23,6 +23,7 @@
   "resources":[
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
+    {"id":{"name":"scr_attack_stinger","path":"scripts/scr_attack_stinger/scr_attack_stinger.yy",},},
     {"id":{"name":"scr_combat_move","path":"scripts/scr_combat_move/scr_combat_move.yy",},},
     {"id":{"name":"scr_combat_state","path":"scripts/scr_combat_state/scr_combat_state.yy",},},
     {"id":{"name":"scr_combat","path":"scripts/scr_combat/scr_combat.yy",},},
