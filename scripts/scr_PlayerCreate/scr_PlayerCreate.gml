@@ -41,9 +41,10 @@ function PlayerCreate(){
     
     combat_move_speed_multiplier = 1;
 
-    // Stinger input
-    stinger_tap_direction = 0;
-    stinger_double_tap_timer = 0;
-    stinger_input_window_timer = 0;
+    // Input History
+    input_history = [];
+    input_history_max = 24;
+    input_frame = 0;
+
     stinger_direction = 0;
 }
