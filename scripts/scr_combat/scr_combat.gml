@@ -5,6 +5,20 @@ function scr_combat(_player)
     if (_player.combat_state == CombatState.FREE)
     {
         var _command = scr_input_command_get(_player);
+        
+        if (_command.type == InputCommand.HADOUKEN)
+{
+           // K уже использован как часть специальной команды.
+           // Не даём ему одновременно запустить обычную атаку.
+           scr_input_history_consume_until(_player, _command.frame);
+           _player.attack_buffer_timer = 0;
+       
+           scr_fire_ball_create(_player);
+       
+           show_debug_message("HADOUKEN");
+       
+           return;
+       }
 
         if (_command.type == InputCommand.STINGER)
         {
