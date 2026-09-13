@@ -1,6 +1,6 @@
 function scr_attack_stinger_get_move(_player)
 {
-    return CombatMove(
+    var _move = CombatMove(
         _player.spriteAttackSp1,
 
         4,  // startup
@@ -24,4 +24,12 @@ function scr_attack_stinger_get_move(_player)
         1, // animation active frames
         1  // animation recovery frames
     );
+
+    // Дополнительные параметры именно Stinger.
+    // Они не нужны обычным атакам, поэтому не добавляем их в CombatMove.
+    _move.lunge_speed = 10;
+    _move.lunge_duration = 7;
+    _move.lunge_remaining = _move.lunge_duration;
+
+    return _move;
 }
