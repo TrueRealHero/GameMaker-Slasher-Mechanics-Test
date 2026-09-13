@@ -22,7 +22,7 @@ function PlayerCreate(){
     spriteAttack3 = sAttack3;
     spriteAttackSp1 = sAttackSpecial1;
      
-     // Клавиша
+    // Клавиша
     attack_key = ord("K");
     
     combat_state = CombatState.FREE;
@@ -40,5 +40,10 @@ function PlayerCreate(){
     current_knockback = 0;
     
     combat_move_speed_multiplier = 1;
-    
+
+    // Stinger input
+    stinger_tap_direction = 0;
+    stinger_double_tap_timer = 0;
+    stinger_input_window_timer = 0;
+    stinger_direction = 0;
 }
