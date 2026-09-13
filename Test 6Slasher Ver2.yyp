@@ -21,6 +21,7 @@
   },
   "name":"Test 6Slasher Ver2",
   "resources":[
+    {"id":{"name":"obj_fire_ball","path":"objects/obj_fire_ball/obj_fire_ball.yy",},},
     {"id":{"name":"obj_player","path":"objects/obj_player/obj_player.yy",},},
     {"id":{"name":"Room1","path":"rooms/Room1/Room1.yy",},},
     {"id":{"name":"scr_attack_stinger","path":"scripts/scr_attack_stinger/scr_attack_stinger.yy",},},

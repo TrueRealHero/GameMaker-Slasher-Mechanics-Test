@@ -1,3 +1,3 @@
-function Script9(){
+function scr_fire_ball(){
 
 }
