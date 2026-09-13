@@ -1,3 +1,4 @@
+scr_input_history_update(id);
 scr_combat(id);
 
 if (combat_state == CombatState.FREE)
