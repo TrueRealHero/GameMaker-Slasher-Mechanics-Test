@@ -8,6 +8,8 @@
     {"name":"scr_combat_move","order":18,"path":"scripts/scr_combat_move/scr_combat_move.yy",},
     {"name":"scr_combat_state","order":17,"path":"scripts/scr_combat_state/scr_combat_state.yy",},
     {"name":"scr_combat","order":13,"path":"scripts/scr_combat/scr_combat.yy",},
+    {"name":"scr_input_command","order":21,"path":"scripts/scr_input_command/scr_input_command.yy",},
+    {"name":"scr_input_hitstory","order":20,"path":"scripts/scr_input_hitstory/scr_input_hitstory.yy",},
     {"name":"scr_movement","order":11,"path":"scripts/scr_movement/scr_movement.yy",},
     {"name":"scr_PlayerCreate","order":15,"path":"scripts/scr_PlayerCreate/scr_PlayerCreate.yy",},
     {"name":"sAttack2","order":1,"path":"sprites/sAttack2/sAttack2.yy",},
