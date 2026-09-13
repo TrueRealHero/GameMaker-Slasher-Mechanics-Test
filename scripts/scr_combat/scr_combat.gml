@@ -1,11 +1,22 @@
 function scr_combat(_player)
 {
-    // Stinger проверяется только когда игрок свободен.
-    // Во время обычной атаки он не перебивает текущий move.
+    // Специальные команды распознаём только в FREE.
+    // Текущую атаку они не перебивают.
     if (_player.combat_state == CombatState.FREE)
     {
-        if (scr_attack_stinger_update_input(_player))
+        var _command = scr_input_command_get(_player);
+
+        if (_command.type == InputCommand.STINGER)
         {
+            _player.stinger_direction = _command.direction;
+
+            // Убираем использованные события из истории.
+            scr_input_history_consume_until(_player, _command.frame);
+
+            // K уже использован как часть Stinger, поэтому
+            // обычная атака из него не должна стартовать.
+            _player.attack_buffer_timer = 0;
+
             scr_combat_start_attack(
                 _player,
                 scr_attack_stinger_get_move(_player)
@@ -29,13 +40,13 @@ function scr_combat(_player)
 
 function scr_combat_update_input_buffer(_player)
 {
-    // Нажали K — запоминаем ввод
+    // Нажали K — запоминаем ввод для обычной атаки.
     if (keyboard_check_pressed(_player.attack_key))
     {
         _player.attack_buffer_timer = 6;
     }
 
-    // Уменьшаем время хранения ввода
+    // Уменьшаем время хранения ввода.
     if (_player.attack_buffer_timer > 0)
     {
         _player.attack_buffer_timer--;
@@ -233,34 +244,18 @@ function scr_combat_apply_charge(_player, _move)
     );
 }
 
-
-
-//////////////////////////////////
-
-
-
-
 function scr_combat_update_move(_player)
 {
     var _move = _player.current_move;
 
     _player.move_timer++;
 
-
-    // =====================================
-    // CHARGE CHECK
-    // =====================================
-
     if (_player.move_phase == CombatMovePhase.CHARGE_CHECK)
     {
-        // Тот же самый спрайт, что и у Attack 3.
-        // Пока проверяем намерение игрока — показываем первый кадр.
         _player.sprite_index = _move.sprite;
         _player.image_index = 0;
         _player.image_speed = 0;
 
-        // Отпустили K раньше 0.5 секунды:
-        // это обычный третий удар без заряда.
         if (keyboard_check(_player.attack_key) == false)
         {
             _player.combat_move_speed_multiplier = 1;
@@ -270,8 +265,6 @@ function scr_combat_update_move(_player)
             return;
         }
 
-        // 30 кадров при 60 FPS = примерно 0.5 секунды.
-        // Если K всё это время удерживается — начинаем настоящий charge.
         if (_player.move_timer >= 30)
         {
             _player.move_phase = CombatMovePhase.CHARGE;
@@ -281,7 +274,6 @@ function scr_combat_update_move(_player)
 
             _player.combat_move_speed_multiplier = 0.35;
 
-            // Charge использует тот же Attack 3 sprite.
             _player.sprite_index = _move.sprite;
             _player.image_index = 0;
             _player.image_speed = 0;
@@ -292,16 +284,10 @@ function scr_combat_update_move(_player)
         return;
     }
 
-
-    // =====================================
-    // CHARGE
-    // =====================================
-
     if (_player.move_phase == CombatMovePhase.CHARGE)
     {
         _player.combat_move_speed_multiplier = 0.35;
 
-        // Charge использует тот же спрайт Attack 3.
         _player.sprite_index = _move.sprite;
         _player.image_index = 0;
         _player.image_speed = 0;
@@ -309,21 +295,12 @@ function scr_combat_update_move(_player)
         if (scr_combat_update_charge(_player, _move))
         {
             _player.combat_move_speed_multiplier = 1;
-
-            // Charge завершён.
-            // Переходим в startup обычной боевой временной шкалы.
             _player.move_phase = CombatMovePhase.STARTUP;
-
             _player.move_timer = 0;
         }
 
         return;
     }
-
-
-    // =====================================
-    // STARTUP
-    // =====================================
 
     if (_player.move_phase == CombatMovePhase.STARTUP)
     {
@@ -332,22 +309,15 @@ function scr_combat_update_move(_player)
         if (_player.move_timer >= _move.startup)
         {
             _player.move_phase = CombatMovePhase.ACTIVE;
-
             _player.move_timer = 0;
         }
 
         return;
     }
 
-
-    // =====================================
-    // ACTIVE
-    // =====================================
-
     if (_player.move_phase == CombatMovePhase.ACTIVE)
     {
         scr_combat_update_animation( _player, _move );
-
         scr_combat_process_hitbox( _player, _move );
 
         if (_player.move_timer >= _move.active)
@@ -359,16 +329,10 @@ function scr_combat_update_move(_player)
         return;
     }
 
-
-    // =====================================
-    // RECOVERY
-    // =====================================
-
     if (_player.move_phase == CombatMovePhase.RECOVERY)
     {
         scr_combat_update_animation( _player, _move );
 
-        // Combo window
         if (
             _player.move_timer >= _move.combo_window_start
             && _player.move_timer <= _move.combo_window_end
@@ -405,64 +369,33 @@ function scr_combat_update_animation(_player, _move)
     var _phase_progress = 0;
     var _phase_duration = 0;
 
-
-    // =====================================
-    // STARTUP
-    // =====================================
-
     if (_player.move_phase == CombatMovePhase.STARTUP)
     {
         _frame_start = 0;
         _frame_count = _move.animation_startup_frames;
-
         _phase_progress = _player.move_timer;
         _phase_duration = _move.startup;
     }
-
-
-    // =====================================
-    // ACTIVE
-    // =====================================
-
     else if (_player.move_phase == CombatMovePhase.ACTIVE)
     {
         _frame_start = _move.animation_startup_frames;
-
         _frame_count = _move.animation_active_frames;
-
         _phase_progress = _player.move_timer;
-
         _phase_duration = _move.active;
     }
-
-    // =====================================
-    // RECOVERY
-    // =====================================
-
     else if (_player.move_phase == CombatMovePhase.RECOVERY)
     {
         _frame_start = _move.animation_startup_frames + _move.animation_active_frames;
-
         _frame_count = _move.animation_recovery_frames;
-
         _phase_progress = _player.move_timer;
-
         _phase_duration = _move.recovery;
     }
 
-
-    // =====================================
-    // CALCULATE FRAME
-    // =====================================
-
     var _phase_ratio = _phase_progress / _phase_duration;
-
     _phase_ratio = clamp(_phase_ratio, 0, 0.9999);
 
     var _local_frame = floor( _phase_ratio * _frame_count );
-
     var _frame = _frame_start + _local_frame;
-
 
     _player.image_index = _frame;
     _player.image_speed = 0;
@@ -470,61 +403,29 @@ function scr_combat_update_animation(_player, _move)
 
 function scr_combat_process_hitbox(_player, _move)
 {
-    // =====================================
     // FUTURE HITBOX SYSTEM
-    // =====================================
-    //
-    // Здесь позже будет:
-    //
-    // 1. Создание / активация hitbox
-    // 2. Поиск hurtbox
-    // 3. Проверка столкновения
-    // 4. Передача damage
-    // 5. Knockback
-    // 6. Hitstun
-    // 7. Launch
-    //
-    // Пока enemy/hurtbox системы нет.
-    // Поэтому только заглушка.
-    //
+    // Здесь позже будет создание/активация hitbox,
+    // поиск hurtbox, damage, knockback, hitstun и launch.
 
     if (_player.move_hit_registered)
     {
         return;
     }
-
-    // FUTURE:
-    // var _target = collision...
-    //
-    // if (_target != noone)
-    // {
-    //     scr_combat_apply_hit(...);
-    //     _player.move_hit_registered = true;
-    // }
 }
 
 function scr_combat_finish_move(_player)
 {
     _player.current_move = undefined;
-
     _player.combat_state = CombatState.FREE;
-
     _player.move_phase = CombatMovePhase.STARTUP;
     _player.move_timer = 0;
-
     _player.move_hit_registered = false;
-
     _player.charge_timer = 0;
     _player.charge_released = false;
-
     _player.current_damage = 0;
     _player.current_knockback = 0;
-
     _player.combat_move_speed_multiplier = 1;
-
     _player.image_index = 0;
     _player.image_speed = 1;
-
-    _player.sprite_index =
-    _player.spriteIdle;
+    _player.sprite_index = _player.spriteIdle;
 }
