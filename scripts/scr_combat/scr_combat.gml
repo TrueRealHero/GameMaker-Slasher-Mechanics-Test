@@ -9,6 +9,8 @@ function scr_combat(_player)
         if (_command.type == InputCommand.STINGER)
         {
             _player.stinger_direction = _command.direction;
+            _player.facing = _command.direction;
+            _player.image_xscale = _player.facing;
 
             // Убираем использованные события из истории.
             scr_input_history_consume_until(_player, _command.frame);
@@ -244,6 +246,30 @@ function scr_combat_apply_charge(_player, _move)
     );
 }
 
+function scr_combat_update_lunge(_player, _move)
+{
+    // Не все CombatMove имеют рывок.
+    if (variable_struct_exists(_move, "lunge_remaining") == false)
+    {
+        return;
+    }
+
+    if (_move.lunge_remaining <= 0)
+    {
+        return;
+    }
+
+    // Рывок идёт в направлении, которое было распознано
+    // командным парсером: A-A-K или D-D-K.
+    _player.hsp = _player.stinger_direction * _move.lunge_speed;
+
+    // Используем ту же систему движения и ту же проверку тайлмапа,
+    // поэтому Stinger не проходит сквозь стены.
+    scr_movement_move_horizontal(_player);
+
+    _move.lunge_remaining--;
+}
+
 function scr_combat_update_move(_player)
 {
     var _move = _player.current_move;
@@ -305,6 +331,7 @@ function scr_combat_update_move(_player)
     if (_player.move_phase == CombatMovePhase.STARTUP)
     {
         scr_combat_update_animation( _player, _move );
+        scr_combat_update_lunge( _player, _move );
 
         if (_player.move_timer >= _move.startup)
         {
@@ -318,6 +345,7 @@ function scr_combat_update_move(_player)
     if (_player.move_phase == CombatMovePhase.ACTIVE)
     {
         scr_combat_update_animation( _player, _move );
+        scr_combat_update_lunge( _player, _move );
         scr_combat_process_hitbox( _player, _move );
 
         if (_player.move_timer >= _move.active)
