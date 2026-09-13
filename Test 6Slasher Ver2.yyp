@@ -42,6 +42,7 @@
     {"id":{"name":"sJump","path":"sprites/sJump/sJump.yy",},},
     {"id":{"name":"Sprite2","path":"sprites/Sprite2/Sprite2.yy",},},
     {"id":{"name":"sRun","path":"sprites/sRun/sRun.yy",},},
+    {"id":{"name":"sTest","path":"sprites/sTest/sTest.yy",},},
     {"id":{"name":"TileSet1","path":"tilesets/TileSet1/TileSet1.yy",},},
   ],
   "resourceType":"GMProject",

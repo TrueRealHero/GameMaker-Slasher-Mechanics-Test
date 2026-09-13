@@ -22,6 +22,7 @@
     {"name":"sJump","order":5,"path":"sprites/sJump/sJump.yy",},
     {"name":"Sprite2","order":3,"path":"sprites/Sprite2/Sprite2.yy",},
     {"name":"sRun","order":6,"path":"sprites/sRun/sRun.yy",},
+    {"name":"sTest","order":8,"path":"sprites/sTest/sTest.yy",},
     {"name":"TileSet1","order":4,"path":"tilesets/TileSet1/TileSet1.yy",},
   ],
 }
