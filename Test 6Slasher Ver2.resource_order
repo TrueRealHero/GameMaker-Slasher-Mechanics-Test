@@ -15,6 +15,7 @@
     {"name":"sAttack2","order":1,"path":"sprites/sAttack2/sAttack2.yy",},
     {"name":"sAttack3","order":2,"path":"sprites/sAttack3/sAttack3.yy",},
     {"name":"sAttackSpecial1","order":3,"path":"sprites/sAttackSpecial1/sAttackSpecial1.yy",},
+    {"name":"sFireBall","order":7,"path":"sprites/sFireBall/sFireBall.yy",},
     {"name":"sIdle","order":4,"path":"sprites/sIdle/sIdle.yy",},
     {"name":"sJump","order":5,"path":"sprites/sJump/sJump.yy",},
     {"name":"Sprite2","order":3,"path":"sprites/Sprite2/Sprite2.yy",},

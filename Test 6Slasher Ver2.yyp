@@ -35,6 +35,7 @@
     {"id":{"name":"sAttack2","path":"sprites/sAttack2/sAttack2.yy",},},
     {"id":{"name":"sAttack3","path":"sprites/sAttack3/sAttack3.yy",},},
     {"id":{"name":"sAttackSpecial1","path":"sprites/sAttackSpecial1/sAttackSpecial1.yy",},},
+    {"id":{"name":"sFireBall","path":"sprites/sFireBall/sFireBall.yy",},},
     {"id":{"name":"sIdle","path":"sprites/sIdle/sIdle.yy",},},
     {"id":{"name":"sJump","path":"sprites/sJump/sJump.yy",},},
     {"id":{"name":"Sprite2","path":"sprites/Sprite2/Sprite2.yy",},},
