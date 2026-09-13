@@ -1,5 +1,5 @@
 // Движение снаряда.
-x += direction_x * speed;
+x += direction_x * pspeed;
 
 // Ограничиваем время жизни снаряда.
 life_timer--;

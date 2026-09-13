@@ -8,5 +8,5 @@ direction_x = 1;
 owner = noone;
 
 damage = 20;
-speed = 7;
+pspeed = 7;
 life_timer = 120;

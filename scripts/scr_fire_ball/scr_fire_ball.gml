@@ -14,7 +14,7 @@ function scr_fire_ball_create(_player)
     );
 
     _fire_ball.direction_x = _player.facing;
-    _fire_ball.speed = 7;
+    _fire_ball.pspeed = 7;
     _fire_ball.damage = 20;
     _fire_ball.life_timer = 120;
 
