@@ -1,5 +1,20 @@
 function scr_combat(_player)
 {
+    // Stinger проверяется только когда игрок свободен.
+    // Во время обычной атаки он не перебивает текущий move.
+    if (_player.combat_state == CombatState.FREE)
+    {
+        if (scr_attack_stinger_update_input(_player))
+        {
+            scr_combat_start_attack(
+                _player,
+                scr_attack_stinger_get_move(_player)
+            );
+
+            return;
+        }
+    }
+
     scr_combat_update_input_buffer(_player);
 
     switch (_player.combat_state)
