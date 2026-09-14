@@ -5,6 +5,12 @@ function CombatMove(
     _recovery,
     _damage,
     _knockback,
+
+    _hitbox_offset_x,
+    _hitbox_offset_y,
+    _hitbox_width,
+    _hitbox_height,
+
     _combo_window_start,
     _combo_window_end,
     _next_move,
@@ -27,6 +33,13 @@ function CombatMove(
 
         damage: _damage,
         knockback: _knockback,
+
+        // Геометрия hitbox конкретного движения.
+        // offset_x задаётся относительно facing = 1.
+        hitbox_offset_x: _hitbox_offset_x,
+        hitbox_offset_y: _hitbox_offset_y,
+        hitbox_width: _hitbox_width,
+        hitbox_height: _hitbox_height,
 
         combo_window_start: _combo_window_start,
         combo_window_end: _combo_window_end,
