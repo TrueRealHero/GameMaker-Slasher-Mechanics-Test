@@ -90,6 +90,11 @@ function scr_combat_get_attack1(_player)
         10, // damage
         3,  // knockback
 
+        42, // hitbox offset x
+        -27, // hitbox offset y
+        55, // hitbox width
+        35, // hitbox height
+
         2,  // combo window start
         6,  // combo window end
 
@@ -116,6 +121,11 @@ function scr_combat_get_attack2(_player)
         12, // damage
         4,  // knockback
 
+        42, // hitbox offset x
+        -27, // hitbox offset y
+        55, // hitbox width
+        35, // hitbox height
+
         2,  // combo window start
         6,  // combo window end
 
@@ -139,6 +149,11 @@ function scr_combat_get_attack3(_player)
 
         20, // damage
         7,  // knockback
+
+        42, // hitbox offset x
+        -27, // hitbox offset y
+        55, // hitbox width
+        35, // hitbox height
 
         0,  // combo window start
         0,  // combo window end
