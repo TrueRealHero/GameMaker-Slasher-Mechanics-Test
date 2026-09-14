@@ -1,21 +1,31 @@
 /// scr_hitbox
-/// Временная hitbox атаки.
-/// Hitbox не является отдельным объектом: она существует только во время проверки ACTIVE.
+/// Универсальная hitbox атаки.
+/// Геометрия берётся из CombatMove.
+/// Hitbox существует логически только во время ACTIVE.
 
-function scr_hitbox_attack(_attacker, _move)
+function scr_hitbox_get_rect(_attacker, _move)
 {
-    // Положение hitbox относительно игрока.
-    var _offset_x = 42 * _attacker.facing;
-    var _offset_y = -27;
-
-    // Размер первой тестовой melee hitbox.
-    var _width = 55;
-    var _height = 35;
+    var _offset_x = _move.hitbox_offset_x * _attacker.facing;
+    var _offset_y = _move.hitbox_offset_y;
+    var _width = _move.hitbox_width;
+    var _height = _move.hitbox_height;
 
     var _left = _attacker.x + _offset_x - _width * 0.5;
     var _top = _attacker.y + _offset_y - _height * 0.5;
     var _right = _left + _width;
     var _bottom = _top + _height;
+
+    return {
+        left: _left,
+        top: _top,
+        right: _right,
+        bottom: _bottom
+    };
+}
+
+function scr_hitbox_attack(_attacker, _move)
+{
+    var _rect = scr_hitbox_get_rect(_attacker, _move);
 
     var _count = instance_number(obj_hurtbox);
 
@@ -48,14 +58,14 @@ function scr_hitbox_attack(_attacker, _move)
 
         var _target_left = _hurtbox.x - _hurtbox.box_width * 0.5;
         var _target_top = _hurtbox.y - _hurtbox.box_height * 0.5;
-        var _target_right = _target_left + _hurtbox.box_width;
-        var _target_bottom = _target_top + _hurtbox.box_height;
+        var _target_right = _hurtbox.x + _hurtbox.box_width * 0.5;
+        var _target_bottom = _hurtbox.y + _hurtbox.box_height * 0.5;
 
         if (
-            _left < _target_right
-            && _right > _target_left
-            && _top < _target_bottom
-            && _bottom > _target_top
+            _rect.left < _target_right
+            && _rect.right > _target_left
+            && _rect.top < _target_bottom
+            && _rect.bottom > _target_top
         )
         {
             scr_hurtbox_receive_damage(
@@ -69,4 +79,21 @@ function scr_hitbox_attack(_attacker, _move)
             _attacker.move_hit_registered = true;
         }
     }
+}
+
+function scr_hitbox_debug_draw(_attacker, _move)
+{
+    var _rect = scr_hitbox_get_rect(_attacker, _move);
+
+    draw_set_alpha(0.45);
+    draw_set_color(c_red);
+    draw_rectangle(
+        _rect.left,
+        _rect.top,
+        _rect.right,
+        _rect.bottom,
+        false
+    );
+    draw_set_alpha(1);
+    draw_set_color(c_white);
 }
