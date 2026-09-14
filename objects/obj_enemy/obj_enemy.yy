@@ -30,7 +30,13 @@
   "resourceType":"GMObject",
   "resourceVersion":"2.0",
   "solid":false,
-  "spriteId":null,
-  "spriteMaskId":null,
+  "spriteId":{
+    "name":"sIdleEnemy",
+    "path":"sprites/sIdleEnemy/sIdleEnemy.yy",
+  },
+  "spriteMaskId":{
+    "name":"sIdleEnemy",
+    "path":"sprites/sIdleEnemy/sIdleEnemy.yy",
+  },
   "visible":true,
 }
