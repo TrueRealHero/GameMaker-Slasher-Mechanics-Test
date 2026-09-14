@@ -19,8 +19,11 @@ else
 }
 
 // Простейший knockback-заглушка.
-if (knockback_speed > 0)
+// knockback_speed может быть как положительным, так и отрицательным.
+if (knockback_speed != 0)
 {
     x += knockback_speed;
-    knockback_speed = max(0, knockback_speed - 0.5);
+
+    // Уменьшаем модуль скорости, сохраняя направление.
+    knockback_speed = approach(knockback_speed, 0, 0.5);
 }
