@@ -7,18 +7,17 @@ function scr_combat(_player)
         var _command = scr_input_command_get(_player);
         
         if (_command.type == InputCommand.HADOUKEN)
-{
-           // K уже использован как часть специальной команды.
-           // Не даём ему одновременно запустить обычную атаку.
-           scr_input_history_consume_until(_player, _command.frame);
-           _player.attack_buffer_timer = 0;
-       
-           scr_fire_ball_create(_player);
-       
-           show_debug_message("HADOUKEN");
-       
-           return;
-       }
+        {
+            // K уже использован как часть специальной команды.
+            scr_input_history_consume_until(_player, _command.frame);
+            _player.attack_buffer_timer = 0;
+            
+            scr_fire_ball_create(_player);
+            
+            show_debug_message("HADOUKEN");
+            
+            return;
+        }
 
         if (_command.type == InputCommand.STINGER)
         {
@@ -29,8 +28,7 @@ function scr_combat(_player)
             // Убираем использованные события из истории.
             scr_input_history_consume_until(_player, _command.frame);
 
-            // K уже использован как часть Stinger, поэтому
-            // обычная атака из него не должна стартовать.
+            // K уже использован как часть Stinger.
             _player.attack_buffer_timer = 0;
 
             scr_combat_start_attack(
@@ -161,9 +159,6 @@ function scr_combat_start_attack(_player, _move)
 
     _player.combat_state = CombatState.ATTACK;
 
-    // Заряжаемый Attack 3 сначала проходит проверку:
-    // игрок должен удерживать K достаточно долго,
-    // чтобы перейти в настоящий CHARGE.
     if (_move.charge_enabled)
     {
         _player.move_phase = CombatMovePhase.CHARGE_CHECK;
@@ -175,7 +170,10 @@ function scr_combat_start_attack(_player, _move)
 
     _player.move_timer = 0;
 
+    // Список целей очищается для каждой новой атаки.
+    _player.move_hit_targets = [];
     _player.move_hit_registered = false;
+
     _player.charge_timer = 0;
     _player.charge_released = false;
     
@@ -198,14 +196,12 @@ function scr_combat_update_charge(_player, _move)
         return false;
     }
 
-    // Игрок продолжает удерживать K
     if (
         keyboard_check(_player.attack_key) && _player.charge_released == false
     )
     {
         _player.charge_timer++;
 
-        // Ограничиваем максимальный заряд
         if (_player.charge_timer >= _move.charge_max)
         {
             _player.charge_timer = _move.charge_max;
@@ -222,7 +218,6 @@ function scr_combat_update_charge(_player, _move)
         return false;
     }
 
-    // Кнопку отпустили
     if (_player.charge_released == false)
     {
         _player.charge_released = true;
@@ -262,7 +257,6 @@ function scr_combat_apply_charge(_player, _move)
 
 function scr_combat_update_lunge(_player, _move)
 {
-    // Не все CombatMove имеют рывок.
     if (variable_struct_exists(_move, "lunge_remaining") == false)
     {
         return;
@@ -273,12 +267,8 @@ function scr_combat_update_lunge(_player, _move)
         return;
     }
 
-    // Рывок идёт в направлении, которое было распознано
-    // командным парсером: A-A-K или D-D-K.
     _player.hsp = _player.stinger_direction * _move.lunge_speed;
 
-    // Используем ту же систему движения и ту же проверку тайлмапа,
-    // поэтому Stinger не проходит сквозь стены.
     scr_movement_move_horizontal(_player);
 
     _move.lunge_remaining--;
@@ -445,14 +435,9 @@ function scr_combat_update_animation(_player, _move)
 
 function scr_combat_process_hitbox(_player, _move)
 {
-    // FUTURE HITBOX SYSTEM
-    // Здесь позже будет создание/активация hitbox,
-    // поиск hurtbox, damage, knockback, hitstun и launch.
-
-    if (_player.move_hit_registered)
-    {
-        return;
-    }
+    // Hitbox существует только во время ACTIVE.
+    // Сама проверка находится в отдельном модуле.
+    scr_hitbox_attack(_player, _move);
 }
 
 function scr_combat_finish_move(_player)
@@ -462,6 +447,7 @@ function scr_combat_finish_move(_player)
     _player.move_phase = CombatMovePhase.STARTUP;
     _player.move_timer = 0;
     _player.move_hit_registered = false;
+    _player.move_hit_targets = [];
     _player.charge_timer = 0;
     _player.charge_released = false;
     _player.current_damage = 0;
