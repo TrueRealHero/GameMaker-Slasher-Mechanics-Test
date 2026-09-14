@@ -1,9 +1,9 @@
 {
   "$GMScript":"v1",
-  "%Name":"scr_combat_state",
+  "%Name":"scr_useful_functions",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"scr_combat_state",
+  "name":"scr_useful_functions",
   "parent":{
     "name":"Test 6Slasher Ver2",
     "path":"Test 6Slasher Ver2.yyp",

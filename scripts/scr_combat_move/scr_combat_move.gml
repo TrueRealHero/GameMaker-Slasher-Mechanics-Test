@@ -1,3 +1,4 @@
+// Конструктор для создания любой атаки
 function CombatMove(
     _sprite,
     _startup,

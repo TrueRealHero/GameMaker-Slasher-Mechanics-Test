@@ -1,3 +1,20 @@
+// Создаем enums для состояний и фаз атак
+enum CombatState
+{
+    FREE,
+    ATTACK
+}
+
+enum CombatMovePhase
+{
+    CHARGE_CHECK,
+    CHARGE,
+    STARTUP,
+    ACTIVE,
+    RECOVERY
+}
+
+// Создаем комбат систему
 function scr_combat(_player)
 {
     // Специальные команды распознаём только в FREE.
@@ -79,94 +96,6 @@ function scr_combat_free(_player)
     }
 }
 
-function scr_combat_get_attack1(_player)
-{
-    return CombatMove( _player.spriteAttack1,
-
-        3,  // startup
-        3,  // active
-        6,  // recovery
-
-        10, // damage
-        3,  // knockback
-
-        42, // hitbox offset x
-        -27, // hitbox offset y
-        55, // hitbox width
-        35, // hitbox height
-
-        2,  // combo window start
-        6,  // combo window end
-
-        scr_combat_get_attack2,
-
-        false, // charge enabled
-        0,      // charge max
-        1,
-        1,
-        2, // animation startup frames
-        2, // animation active frames
-        2  // animation recovery frames
-    );
-}
-
-function scr_combat_get_attack2(_player)
-{
-    return CombatMove(_player.spriteAttack2,
-
-        3,  // startup
-        3,  // active
-        6,  // recovery
-
-        12, // damage
-        4,  // knockback
-
-        42, // hitbox offset x
-        -27, // hitbox offset y
-        55, // hitbox width
-        35, // hitbox height
-
-        2,  // combo window start
-        6,  // combo window end
-
-        scr_combat_get_attack3,
-
-        false, // charge enabled
-        0,      // charge max
-        1,
-        1,
-        1, 3, 2
-    );
-}
-
-function scr_combat_get_attack3(_player)
-{
-    return CombatMove(_player.spriteAttack3,
-
-        3,  // startup
-        3,  // active
-        6,  // recovery
-
-        20, // damage
-        7,  // knockback
-
-        42, // hitbox offset x
-        -27, // hitbox offset y
-        55, // hitbox width
-        35, // hitbox height
-
-        0,  // combo window start
-        0,  // combo window end
-
-        undefined,
-
-        true, // charge enabled
-        30,    // maximum charge
-        1.0,
-        2.0,
-        2, 4, 2
-    );
-}
 
 function scr_combat_start_attack(_player, _move)
 {
