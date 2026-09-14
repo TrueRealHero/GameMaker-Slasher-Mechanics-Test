@@ -10,6 +10,11 @@ function scr_attack_stinger_get_move(_player)
         25, // damage
         8,  // knockback
 
+        42, // hitbox offset x
+        -27, // hitbox offset y
+        55, // hitbox width
+        35, // hitbox height
+
         0,  // combo window start
         0,  // combo window end
 
@@ -26,7 +31,7 @@ function scr_attack_stinger_get_move(_player)
     );
 
     // Дополнительные параметры именно Stinger.
-    // Они не нужны обычным атакам, поэтому не добавляем их в CombatMove.
+    // Они не относятся к геометрии hitbox.
     _move.lunge_speed = 10;
     _move.lunge_duration = 7;
     _move.lunge_remaining = _move.lunge_duration;
