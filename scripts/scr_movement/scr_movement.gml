@@ -4,32 +4,61 @@
 
 function scr_movement(_player)
 {
-    scr_movement_horizontal(_player);
-    scr_movement_jump(_player);
+    // Input читается отдельно от самой реализации движения.
+    // Это позволит добавлять новые действия, не смешивая
+    // чтение клавиш с игровой логикой.
+    var _input = scr_movement_input(_player);
+
+    // Управляемые механики можно включать и выключать
+    // через флаги в PlayerCreate.
+    if (_player.movement_active)
+    {
+        scr_movement_horizontal(_player, _input);
+
+        if (_player.jump_active)
+        {
+            scr_movement_jump(_player, _input);
+        }
+    }
+
+    // Физика и столкновения работают независимо от того,
+    // разрешён ли сейчас пользовательский ввод.
     scr_movement_gravity(_player);
     scr_movement_vertical_collision(_player);
     scr_movement_animation(_player);
 }
 
+/// Ввод движения
+/// Здесь находятся только keyboard_check / mouse_check и т.п.
+/// Реализация механик находится ниже.
+
+function scr_movement_input(_player)
+{
+    return {
+        horizontal: keyboard_check(ord("D")) - keyboard_check(ord("A")),
+        jump: keyboard_check_pressed(vk_space)
+    };
+}
+
 /// Горизонтальное движение
 
-function scr_movement_horizontal(_player)
+function scr_movement_horizontal(_player, _input)
 {
-    var _input = keyboard_check(ord("D")) - keyboard_check(ord("A"));
+    var _horizontal = _input.horizontal;
 
-    // Скорость зависит от состояния Shift
+    // Скорость зависит от текущего множителя движения.
     var _speed = _player.walkspeed * _player.combat_move_speed_multiplier;
 
-    _player.hsp = _input * _speed;
+    _player.hsp = _horizontal * _speed;
 
-    // Запоминаем направление взгляда
-    if (_input != 0)
+    // Запоминаем направление взгляда.
+    if (_horizontal != 0)
     {
-        _player.facing = sign(_input);
+        _player.facing = sign(_horizontal);
         _player.image_xscale = _player.facing;
     }
 
-    // Двигаемся с проверкой тайлмапа
+    // Двигаемся с проверкой тайлмапа.
     scr_movement_move_horizontal(_player);
 }
 
@@ -39,6 +68,10 @@ function scr_movement_solid(_player, _x, _y)
 {
     return tilemap_get_at_pixel(_player.ground, _x, _y) != 0;
 }
+
+/// Низкоуровневое горизонтальное перемещение.
+/// Не читает input и поэтому может вызываться другими механиками,
+/// например рывком или Stinger.
 
 function scr_movement_move_horizontal(_player)
 {
@@ -69,9 +102,9 @@ function scr_movement_move_horizontal(_player)
 
 /// Прыжок
 
-function scr_movement_jump(_player)
+function scr_movement_jump(_player, _input)
 {
-    if (keyboard_check_pressed(vk_space) && _player.grounded)
+    if (_input.jump && _player.grounded)
     {
         _player.vsp = _player.jump_speed;
         _player.grounded = false;
