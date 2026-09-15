@@ -9,6 +9,15 @@ function PlayerCreate(){
     jump_speed = -11;
     walkspeed = 4;
     runspeed = 7;
+
+    // Movement features
+    // Главный переключатель пользовательского управления движением.
+    movement_active = true;
+
+    // Отдельный переключатель прыжка.
+    // Позже сюда можно будет добавлять другие механики:
+    // dash_active, roll_active и т.д.
+    jump_active = true;
      
     facing = 1;
     grounded = false;
