@@ -29,29 +29,34 @@ function scr_combat(_player)
             scr_input_history_consume_until(_player, _command.frame);
             _player.attack_buffer_timer = 0;
             
-            scr_fire_ball_create(_player);
-            
-            show_debug_message("HADOUKEN");
+            if (_player.hadouken_active)
+            {
+                scr_fire_ball_create(_player);
+                show_debug_message("HADOUKEN");
+            }
             
             return;
         }
 
         if (_command.type == InputCommand.STINGER)
         {
-            _player.stinger_direction = _command.direction;
-            _player.facing = _command.direction;
-            _player.image_xscale = _player.facing;
+            if (_player.stinger_active)
+            {
+                _player.stinger_direction = _command.direction;
+                _player.facing = _command.direction;
+                _player.image_xscale = _player.facing;
 
-            // Убираем использованные события из истории.
-            scr_input_history_consume_until(_player, _command.frame);
+                // Убираем использованные события из истории.
+                scr_input_history_consume_until(_player, _command.frame);
 
-            // K уже использован как часть Stinger.
-            _player.attack_buffer_timer = 0;
+                // K уже использован как часть Stinger.
+                _player.attack_buffer_timer = 0;
 
-            scr_combat_start_attack(
-                _player,
-                scr_attack_stinger_get_move(_player)
-            );
+                scr_combat_start_attack(
+                    _player,
+                    scr_attack_stinger_get_move(_player)
+                );
+            }
 
             return;
         }
@@ -88,6 +93,7 @@ function scr_combat_free(_player)
 {
     if (
         _player.grounded && _player.attack_buffer_timer > 0
+        && _player.attack1_active
     )
     {
         _player.attack_buffer_timer = 0;
@@ -99,6 +105,11 @@ function scr_combat_free(_player)
 
 function scr_combat_start_attack(_player, _move)
 {
+    if (_move.active == false)
+    {
+        return false;
+    }
+
     _player.current_move = _move;
 
     _player.combat_state = CombatState.ATTACK;
@@ -131,6 +142,8 @@ function scr_combat_start_attack(_player, _move)
 
     _player.image_index = 0;
     _player.image_speed = 0;
+
+    return true;
 }
 
 function scr_combat_update_charge(_player, _move)
@@ -323,7 +336,10 @@ function scr_combat_update_move(_player)
 
                 var _next_move = _move.next_move(_player);
 
-                scr_combat_start_attack( _player, _next_move );
+                if (_next_move.active)
+                {
+                    scr_combat_start_attack( _player, _next_move );
+                }
 
                 return;
             }
