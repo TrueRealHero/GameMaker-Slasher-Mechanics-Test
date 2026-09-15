@@ -33,6 +33,15 @@ function PlayerCreate(){
      
     // Клавиша
     attack_key = ord("K");
+
+    // Combat features
+    // true = способность доступна.
+    // false = способность пока заблокирована.
+    attack1_active = true;
+    attack2_active = true;
+    attack3_active = true;
+    stinger_active = true;
+    hadouken_active = true;
     
     combat_state = CombatState.FREE;
     current_move = undefined;
