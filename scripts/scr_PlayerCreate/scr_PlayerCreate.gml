@@ -66,4 +66,17 @@ function PlayerCreate(){
     input_frame = 0;
 
     stinger_direction = 0;
+
+    // =========================
+    // Health / damage reaction
+    // =========================
+
+    hp = 100;
+    dead = false;
+    hurt_timer = 0;
+    hurt_source = noone;
+    knockback_speed = 0;
+
+    // Игрок тоже получает постоянный hurtbox.
+    hurtbox = scr_hurtbox_create(id, 0, -27, 35, 40);
 }
