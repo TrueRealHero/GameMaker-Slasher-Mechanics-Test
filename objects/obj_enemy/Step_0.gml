@@ -8,22 +8,33 @@ if (dead)
 if (hurt_timer > 0)
 {
     hurt_timer--;
+
     sprite_index = sprite_hurt;
     image_index = 0;
     image_speed = 0;
 }
 else
 {
-    sprite_index = sprite_idle;
-    image_speed = 1;
+    // AI управляет состоянием и атакой.
+    scr_enemy_ai(id);
 }
 
-// Простейший knockback-заглушка.
-// knockback_speed может быть как положительным, так и отрицательным.
-if (knockback_speed != 0)
-{
-    x += knockback_speed;
+// Физика работает отдельно от AI.
+// Поэтому враг продолжает падать и сталкиваться с землёй,
+// даже когда AI ничего не делает.
+scr_enemy_physics(id);
 
-    // Уменьшаем модуль скорости, сохраняя направление.
-    knockback_speed = approach(knockback_speed, 0, 0.5);
+// Если враг не атакует, возвращаем обычную анимацию.
+if (ai_state != EnemyAIState.ATTACK && hurt_timer <= 0)
+{
+    if (hsp != 0)
+    {
+        sprite_index = sprite_idle;
+        image_speed = 1;
+    }
+    else
+    {
+        sprite_index = sprite_idle;
+        image_speed = 1;
+    }
 }
