@@ -1,7 +1,7 @@
 /// scr_enemy_ai
 /// Базовый AI врага.
 /// IDLE -> CHASE -> ATTACK.
-/// Прыжок используется только для преодоления препятствия впереди.
+/// Прыжок используется для перехода между уровнями платформ.
 
 enum EnemyAIState
 {
@@ -32,7 +32,10 @@ function scr_enemy_ai(_enemy)
         return;
     }
 
-    var _distance_x = abs(_target.x - _enemy.x);
+    var _dx = _target.x - _enemy.x;
+    var _distance_x = abs(_dx);
+    var _direction = sign(_dx);
+    var _distance_y = _enemy.y - _target.y;
 
     switch (_enemy.ai_state)
     {
@@ -46,19 +49,15 @@ function scr_enemy_ai(_enemy)
         break;
 
         case EnemyAIState.CHASE:
-            var _direction = sign(_target.x - _enemy.x);
-
-            // Не меняем facing, когда X практически совпал.
-            // Иначе юнит может визуально флипаться на месте.
+            // Если X почти совпал, сохраняем прежнее направление.
+            // Это предотвращает флип на месте, когда игрок находится сверху/снизу.
             if (_distance_x > 4)
             {
                 _enemy.facing = _direction;
                 _enemy.image_xscale = _enemy.facing;
             }
 
-            // Атака возможна только если враг находится примерно
-            // на одном уровне с игроком.
-            var _same_level = abs(_target.y - _enemy.y) <= _enemy.attack_level_tolerance;
+            var _same_level = abs(_distance_y) <= _enemy.attack_level_tolerance;
 
             if (_distance_x <= _enemy.attack_range && _same_level)
             {
@@ -79,10 +78,10 @@ function scr_enemy_ai(_enemy)
                 break;
             }
 
+            // Основная цель CHASE — двигаться к игроку по X.
+            // Прыжок является отдельным решением навигации.
             _enemy.hsp = _direction * _enemy.move_speed;
 
-            // Прыжок не связан просто с координатой Y игрока.
-            // Сначала проверяем физическое препятствие перед врагом.
             if (_enemy.grounded && _enemy.jump_cooldown <= 0)
             {
                 if (scr_enemy_should_jump(_enemy, _target, _direction))
@@ -101,39 +100,68 @@ function scr_enemy_ai(_enemy)
     }
 }
 
-/// Прыжок нужен только для преодоления препятствия.
+/// Определяет, нужен ли прыжок для продолжения преследования.
+///
+/// Важный принцип:
+/// разница Y сама по себе не является причиной прыжка.
+/// Мы прыгаем только когда перед врагом обнаружено препятствие,
+/// которое можно потенциально преодолеть прыжком.
 function scr_enemy_should_jump(_enemy, _target, _direction)
 {
     if (_direction == 0) return false;
 
-    var _check_x = _enemy.x + _direction * _enemy.jump_check_distance;
+    var _body_half_width = _enemy.body_width * 0.5;
     var _feet_y = _enemy.y - _enemy.body_bottom_offset;
 
-    // Проверяем препятствие на уровне ног.
-    var _low = scr_movement_solid(_enemy, _check_x, _feet_y - 8);
+    // Проверяем несколько точек перед телом, чтобы маленькое препятствие
+    // не терялось из-за одного единственного sample point.
+    var _check_x_near = _enemy.x + _direction * (_body_half_width + 3);
+    var _check_x_far = _enemy.x + _direction * (_body_half_width + _enemy.jump_check_distance);
 
-    if (!_low) return false;
+    var _obstacle_near =
+        scr_movement_solid(_enemy, _check_x_near, _feet_y - 8) ||
+        scr_movement_solid(_enemy, _check_x_near, _feet_y - 16);
 
-    // Проверяем, есть ли место выше препятствия.
-    var _high = scr_movement_solid(
-        _enemy,
-        _check_x,
-        _feet_y - _enemy.jump_height_threshold
-    );
+    var _obstacle_far =
+        scr_movement_solid(_enemy, _check_x_far, _feet_y - 8) ||
+        scr_movement_solid(_enemy, _check_x_far, _feet_y - 16);
 
-    if (_high) return false;
+    if (!_obstacle_near && !_obstacle_far)
+    {
+        return false;
+    }
 
-    // Если игрок выше, убеждаемся, что он действительно находится
-    // в направлении движения и недалеко от препятствия.
-    var _target_ahead =
-        (_target.x - _enemy.x) * _direction > 0 &&
-        abs(_target.x - _enemy.x) <= 160;
+    // Проверяем, что над препятствием есть пространство для тела врага.
+    var _clear_x = _check_x_near;
+    var _clear_y = _feet_y - _enemy.jump_height_threshold;
 
-    var _target_higher =
-        _enemy.y - _target.y > 8 &&
-        _enemy.y - _target.y <= _enemy.jump_height_threshold;
+    var _space_clear =
+        !scr_movement_solid(_enemy, _clear_x, _clear_y) &&
+        !scr_movement_solid(_enemy, _clear_x, _clear_y - _enemy.body_height * 0.5);
 
-    return _target_ahead && _target_higher;
+    if (!_space_clear)
+    {
+        return false;
+    }
+
+    // Нам нужен игрок, находящийся за препятствием или на верхнем уровне.
+    // Если игрок просто подпрыгнул рядом на той же поверхности,
+    // враг не должен повторять его прыжок.
+    var _target_ahead = _dx_to_target(_enemy, _target) * _direction > 0;
+    var _target_close = abs(_target.x - _enemy.x) <= _enemy.jump_target_distance;
+    var _target_higher = _distance_y_to_target(_enemy, _target) > 8;
+
+    return _target_ahead && _target_close && _target_higher;
+}
+
+function _dx_to_target(_enemy, _target)
+{
+    return _target.x - _enemy.x;
+}
+
+function _distance_y_to_target(_enemy, _target)
+{
+    return _enemy.y - _target.y;
 }
 
 function scr_enemy_physics(_enemy)
