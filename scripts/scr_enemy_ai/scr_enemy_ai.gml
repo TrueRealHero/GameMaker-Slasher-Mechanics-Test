@@ -1,7 +1,7 @@
 /// scr_enemy_ai
 /// Базовый AI врага.
 /// IDLE -> CHASE -> ATTACK.
-/// Враг преследует игрока по X и может запрыгивать на более высокую платформу.
+/// Прыжок используется только для преодоления препятствия впереди.
 
 enum EnemyAIState
 {
@@ -12,15 +12,10 @@ enum EnemyAIState
 
 function scr_enemy_ai(_enemy)
 {
-    if (_enemy.attack_cooldown > 0)
-    {
-        _enemy.attack_cooldown--;
-    }
+    if (_enemy.attack_cooldown > 0) _enemy.attack_cooldown--;
+    if (_enemy.jump_cooldown > 0) _enemy.jump_cooldown--;
 
-    if (_enemy.hurt_timer > 0)
-    {
-        return;
-    }
+    if (_enemy.hurt_timer > 0) return;
 
     var _target = _enemy.target;
 
@@ -33,11 +28,11 @@ function scr_enemy_ai(_enemy)
     if (instance_exists(_target) == false)
     {
         _enemy.ai_state = EnemyAIState.IDLE;
+        _enemy.hsp = 0;
         return;
     }
 
     var _distance_x = abs(_target.x - _enemy.x);
-    var _distance_y = _enemy.y - _target.y;
 
     switch (_enemy.ai_state)
     {
@@ -51,19 +46,21 @@ function scr_enemy_ai(_enemy)
         break;
 
         case EnemyAIState.CHASE:
-            // Если игрок выше и находится достаточно близко,
-            // пытаемся запрыгнуть на платформу.
-            if (
-                _enemy.grounded
-                && _distance_y >= _enemy.jump_height_threshold
-                && _distance_x <= _enemy.jump_horizontal_threshold
-            )
+            var _direction = sign(_target.x - _enemy.x);
+
+            // Не меняем facing, когда X практически совпал.
+            // Иначе юнит может визуально флипаться на месте.
+            if (_distance_x > 4)
             {
-                _enemy.vsp = _enemy.jump_speed;
-                _enemy.grounded = false;
+                _enemy.facing = _direction;
+                _enemy.image_xscale = _enemy.facing;
             }
 
-            if (_distance_x <= _enemy.attack_range && abs(_distance_y) < _enemy.body_height)
+            // Атака возможна только если враг находится примерно
+            // на одном уровне с игроком.
+            var _same_level = abs(_target.y - _enemy.y) <= _enemy.attack_level_tolerance;
+
+            if (_distance_x <= _enemy.attack_range && _same_level)
             {
                 _enemy.hsp = 0;
 
@@ -82,15 +79,19 @@ function scr_enemy_ai(_enemy)
                 break;
             }
 
-            var _direction = sign(_target.x - _enemy.x);
-
-            if (_direction != 0)
-            {
-                _enemy.facing = _direction;
-                _enemy.image_xscale = _enemy.facing;
-            }
-
             _enemy.hsp = _direction * _enemy.move_speed;
+
+            // Прыжок не связан просто с координатой Y игрока.
+            // Сначала проверяем физическое препятствие перед врагом.
+            if (_enemy.grounded && _enemy.jump_cooldown <= 0)
+            {
+                if (scr_enemy_should_jump(_enemy, _target, _direction))
+                {
+                    _enemy.vsp = _enemy.jump_speed;
+                    _enemy.grounded = false;
+                    _enemy.jump_cooldown = 30;
+                }
+            }
         break;
 
         case EnemyAIState.ATTACK:
@@ -98,6 +99,41 @@ function scr_enemy_ai(_enemy)
             scr_enemy_update_attack(_enemy);
         break;
     }
+}
+
+/// Прыжок нужен только для преодоления препятствия.
+function scr_enemy_should_jump(_enemy, _target, _direction)
+{
+    if (_direction == 0) return false;
+
+    var _check_x = _enemy.x + _direction * _enemy.jump_check_distance;
+    var _feet_y = _enemy.y - _enemy.body_bottom_offset;
+
+    // Проверяем препятствие на уровне ног.
+    var _low = scr_movement_solid(_enemy, _check_x, _feet_y - 8);
+
+    if (!_low) return false;
+
+    // Проверяем, есть ли место выше препятствия.
+    var _high = scr_movement_solid(
+        _enemy,
+        _check_x,
+        _feet_y - _enemy.jump_height_threshold
+    );
+
+    if (_high) return false;
+
+    // Если игрок выше, убеждаемся, что он действительно находится
+    // в направлении движения и недалеко от препятствия.
+    var _target_ahead =
+        (_target.x - _enemy.x) * _direction > 0 &&
+        abs(_target.x - _enemy.x) <= 160;
+
+    var _target_higher =
+        _enemy.y - _target.y > 8 &&
+        _enemy.y - _target.y <= _enemy.jump_height_threshold;
+
+    return _target_ahead && _target_higher;
 }
 
 function scr_enemy_physics(_enemy)
@@ -119,11 +155,7 @@ function scr_enemy_physics(_enemy)
 
 function scr_enemy_move_horizontal(_enemy)
 {
-    if (_enemy.hsp == 0)
-    {
-        return;
-    }
-
+    if (_enemy.hsp == 0) return;
     scr_movement_move_horizontal(_enemy);
 }
 
@@ -151,32 +183,18 @@ function scr_enemy_get_attack(_enemy)
 {
     return CombatMove(
         _enemy.sprite_attack,
-        4,
-        3,
-        8,
-        8,
-        5,
-        38,
-        -27,
-        50,
-        35,
-        0,
-        0,
-        undefined,
-        false,
-        0,
-        1,
-        1,
-        1,
-        3,
-        2
+        4, 3, 8,
+        8, 5,
+        38, -27, 50, 35,
+        0, 0, undefined,
+        false, 0, 1, 1,
+        1, 3, 2
     );
 }
 
 function scr_enemy_update_attack(_enemy)
 {
     var _move = _enemy.current_move;
-
     _enemy.move_timer++;
 
     if (_enemy.move_phase == CombatMovePhase.STARTUP)
@@ -188,7 +206,6 @@ function scr_enemy_update_attack(_enemy)
             _enemy.move_phase = CombatMovePhase.ACTIVE;
             _enemy.move_timer = 0;
         }
-
         return;
     }
 
@@ -202,7 +219,6 @@ function scr_enemy_update_attack(_enemy)
             _enemy.move_phase = CombatMovePhase.RECOVERY;
             _enemy.move_timer = 0;
         }
-
         return;
     }
 
@@ -253,9 +269,13 @@ function scr_enemy_update_animation(_enemy, _move)
         _phase_duration = _move.recovery;
     }
 
-    var _ratio = _enemy.move_timer / _phase_duration;
-    _ratio = clamp(_ratio, 0, 0.9999);
-
+    var _ratio = _move_timer_safe(_enemy.move_timer, _phase_duration);
     _enemy.image_index = _frame_start + floor(_ratio * _frame_count);
     _enemy.image_speed = 0;
+}
+
+function _move_timer_safe(_timer, _duration)
+{
+    if (_duration <= 0) return 0;
+    return clamp(_timer / _duration, 0, 0.9999);
 }
