@@ -45,14 +45,11 @@ function scr_movement_horizontal(_player, _input)
     scr_movement_move_horizontal(_player);
 }
 
-/// Проверка твёрдого тайла.
 function scr_movement_solid(_player, _x, _y)
 {
     return tilemap_get_at_pixel(_player.ground, _x, _y) != 0;
 }
 
-/// Низкоуровневое горизонтальное движение.
-/// Collision body имеет собственный размер и не зависит от sprite bbox.
 function scr_movement_move_horizontal(_player)
 {
     var _amount = abs(_player.hsp);
@@ -62,9 +59,12 @@ function scr_movement_move_horizontal(_player)
     {
         var _next_x = _player.x + _direction;
 
+        // Нижняя точка тела находится на 1 пиксель выше самой точки ног.
+        // Это предотвращает ситуацию, когда сущность, стоящая на полу,
+        // считается уже находящейся внутри collision tile.
         var _top = _player.y - _player.body_height;
         var _middle = _player.y - (_player.body_height * 0.5);
-        var _bottom = _player.y - _player.body_bottom_offset;
+        var _bottom = _player.y - _player.body_bottom_offset - 1;
 
         if (
             scr_movement_solid(_player, _next_x - _player.body_width * 0.5, _top) ||
@@ -116,12 +116,24 @@ function scr_movement_vertical_collision(_player)
         var _left = _player.x - _player.body_width * 0.5;
         var _middle = _player.x;
         var _right = _player.x + _player.body_width * 0.5;
-        var _bottom = _next_y - _player.body_bottom_offset;
+
+        // При движении вниз проверяем ноги.
+        // При движении вверх проверяем голову.
+        var _check_y;
+
+        if (_direction > 0)
+        {
+            _check_y = _next_y - _player.body_bottom_offset;
+        }
+        else
+        {
+            _check_y = _next_y - _player.body_height;
+        }
 
         if (
-            scr_movement_solid(_player, _left, _bottom) ||
-            scr_movement_solid(_player, _middle, _bottom) ||
-            scr_movement_solid(_player, _right, _bottom)
+            scr_movement_solid(_player, _left, _check_y) ||
+            scr_movement_solid(_player, _middle, _check_y) ||
+            scr_movement_solid(_player, _right, _check_y)
         )
         {
             if (_direction > 0)
@@ -137,9 +149,6 @@ function scr_movement_vertical_collision(_player)
     }
 }
 
-/// Синхронизация состояния grounded после создания сущности.
-/// Нужна, потому что первая проверка вертикальной физики ещё не успела
-/// определить, стоит ли сущность на платформе.
 function scr_movement_initialize_grounded(_player)
 {
     var _feet_y = _player.y - _player.body_bottom_offset;
