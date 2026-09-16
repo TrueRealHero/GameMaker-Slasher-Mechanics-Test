@@ -37,7 +37,7 @@ jump_active = true;
 target = noone;
 ai_state = EnemyAIState.IDLE;
 
-detection_range = 500;
+detection_range = 300;
 attack_range = 70;
 attack_level_tolerance = 35;
 move_speed = 2;
@@ -46,7 +46,7 @@ attack_cooldown = 30;
 // Прыжок только для преодоления препятствий.
 jump_height_threshold = 48;
 jump_check_distance = 28;
-jump_target_distance = 180;
+jump_target_distance = 300;
 jump_cooldown = 0;
 
 // =========================
