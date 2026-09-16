@@ -1,8 +1,7 @@
 /// scr_enemy_ai
 /// Базовый AI врага.
-/// Первый прототип: IDLE -> CHASE -> ATTACK.
-/// Враг пока преследует игрока только по X.
-/// Y остаётся под контролем физики/гравитации.
+/// IDLE -> CHASE -> ATTACK.
+/// Враг преследует игрока по X и может запрыгивать на более высокую платформу.
 
 enum EnemyAIState
 {
@@ -18,7 +17,6 @@ function scr_enemy_ai(_enemy)
         _enemy.attack_cooldown--;
     }
 
-    // Во время получения удара AI не вмешивается в движение.
     if (_enemy.hurt_timer > 0)
     {
         return;
@@ -38,21 +36,34 @@ function scr_enemy_ai(_enemy)
         return;
     }
 
-    var _distance = abs(_target.x - _enemy.x);
+    var _distance_x = abs(_target.x - _enemy.x);
+    var _distance_y = _enemy.y - _target.y;
 
     switch (_enemy.ai_state)
     {
         case EnemyAIState.IDLE:
             _enemy.hsp = 0;
 
-            if (_distance <= _enemy.detection_range)
+            if (_distance_x <= _enemy.detection_range)
             {
                 _enemy.ai_state = EnemyAIState.CHASE;
             }
         break;
 
         case EnemyAIState.CHASE:
-            if (_distance <= _enemy.attack_range)
+            // Если игрок выше и находится достаточно близко,
+            // пытаемся запрыгнуть на платформу.
+            if (
+                _enemy.grounded
+                && _distance_y >= _enemy.jump_height_threshold
+                && _distance_x <= _enemy.jump_horizontal_threshold
+            )
+            {
+                _enemy.vsp = _enemy.jump_speed;
+                _enemy.grounded = false;
+            }
+
+            if (_distance_x <= _enemy.attack_range && abs(_distance_y) < _enemy.body_height)
             {
                 _enemy.hsp = 0;
 
@@ -64,7 +75,7 @@ function scr_enemy_ai(_enemy)
                 break;
             }
 
-            if (_distance > _enemy.detection_range)
+            if (_distance_x > _enemy.detection_range)
             {
                 _enemy.hsp = 0;
                 _enemy.ai_state = EnemyAIState.IDLE;
@@ -91,7 +102,6 @@ function scr_enemy_ai(_enemy)
 
 function scr_enemy_physics(_enemy)
 {
-    // Knockback имеет приоритет над обычным движением AI.
     if (_enemy.knockback_speed != 0)
     {
         _enemy.hsp = _enemy.knockback_speed;
@@ -103,8 +113,6 @@ function scr_enemy_physics(_enemy)
         scr_enemy_move_horizontal(_enemy);
     }
 
-    // Та же гравитация и вертикальная collision logic,
-    // что используется игроком.
     scr_movement_gravity(_enemy);
     scr_movement_vertical_collision(_enemy);
 }
@@ -143,31 +151,25 @@ function scr_enemy_get_attack(_enemy)
 {
     return CombatMove(
         _enemy.sprite_attack,
-
-        4,  // startup
-        3,  // active
-        8,  // recovery
-
-        8,  // damage
-        5,  // knockback
-
-        38, // hitbox offset x
-        -27, // hitbox offset y
-        50, // hitbox width
-        35, // hitbox height
-
+        4,
+        3,
+        8,
+        8,
+        5,
+        38,
+        -27,
+        50,
+        35,
         0,
         0,
         undefined,
-
         false,
         0,
         1,
         1,
-
-        1, // startup animation frames
-        3, // active animation frames
-        2  // recovery animation frames
+        1,
+        3,
+        2
     );
 }
 
