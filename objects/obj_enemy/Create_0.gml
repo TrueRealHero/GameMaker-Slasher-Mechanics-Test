@@ -23,6 +23,14 @@ hsp = 0;
 vsp = 0;
 grounded = false;
 
+// Физическое тело не зависит от размера sprite.
+body_width = 20;
+body_height = 40;
+body_bottom_offset = 0;
+
+jump_speed = -11;
+jump_active = true;
+
 // =========================
 // AI
 // =========================
@@ -34,6 +42,10 @@ detection_range = 500;
 attack_range = 70;
 move_speed = 2;
 attack_cooldown = 30;
+
+// Параметры прыжка AI.
+jump_height_threshold = 32;
+jump_horizontal_threshold = 90;
 
 // =========================
 // Combat
@@ -54,6 +66,8 @@ current_knockback = 0;
 // =========================
 
 sprite_idle = sIdleEnemy;
+sprite_run = sRunEnemy;
+sprite_jump = sJumpEnemy;
 sprite_hurt = sHurtEnemy;
 sprite_attack = sAttack1Enemy;
 sprite_index = sprite_idle;
