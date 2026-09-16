@@ -65,5 +65,8 @@ function PlayerCreate(){
     hurt_source = noone;
     knockback_speed = 0;
 
+    // Сразу определяем начальное состояние земли.
+    scr_movement_initialize_grounded(id);
+
     hurtbox = scr_hurtbox_create(id, 0, -27, 35, 40);
 }
