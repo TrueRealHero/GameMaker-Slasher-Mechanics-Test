@@ -43,9 +43,10 @@ attack_range = 70;
 move_speed = 2;
 attack_cooldown = 30;
 
-// Параметры прыжка AI.
-jump_height_threshold = 32;
-jump_horizontal_threshold = 90;
+// Прыжок используется только для преодоления препятствий.
+jump_height_threshold = 48;
+jump_check_distance = 28;
+jump_cooldown = 0;
 
 // =========================
 // Combat
@@ -81,3 +82,6 @@ facing = 1;
 // =========================
 
 hurtbox = scr_hurtbox_create(id, 0, -27, 35, 40);
+
+// Начальное состояние земли определяем сразу.
+scr_movement_initialize_grounded(id);
