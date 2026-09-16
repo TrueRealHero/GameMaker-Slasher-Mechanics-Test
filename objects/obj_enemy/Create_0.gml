@@ -23,7 +23,6 @@ hsp = 0;
 vsp = 0;
 grounded = false;
 
-// Физическое тело не зависит от размера sprite.
 body_width = 20;
 body_height = 40;
 body_bottom_offset = 0;
@@ -40,10 +39,11 @@ ai_state = EnemyAIState.IDLE;
 
 detection_range = 500;
 attack_range = 70;
+attack_level_tolerance = 35;
 move_speed = 2;
 attack_cooldown = 30;
 
-// Прыжок используется только для преодоления препятствий.
+// Прыжок только для преодоления препятствий.
 jump_height_threshold = 48;
 jump_check_distance = 28;
 jump_cooldown = 0;
@@ -83,5 +83,4 @@ facing = 1;
 
 hurtbox = scr_hurtbox_create(id, 0, -27, 35, 40);
 
-// Начальное состояние земли определяем сразу.
 scr_movement_initialize_grounded(id);
