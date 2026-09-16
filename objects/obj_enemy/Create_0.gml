@@ -46,6 +46,7 @@ attack_cooldown = 30;
 // Прыжок только для преодоления препятствий.
 jump_height_threshold = 48;
 jump_check_distance = 28;
+jump_target_distance = 180;
 jump_cooldown = 0;
 
 // =========================
