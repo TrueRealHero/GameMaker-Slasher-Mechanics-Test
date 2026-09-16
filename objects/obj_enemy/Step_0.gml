@@ -20,16 +20,19 @@ else
 }
 
 // Физика работает отдельно от AI.
-// Поэтому враг продолжает падать и сталкиваться с землёй,
-// даже когда AI ничего не делает.
 scr_enemy_physics(id);
 
-// Если враг не атакует, возвращаем обычную анимацию.
-if (ai_state != EnemyAIState.ATTACK && hurt_timer <= 0)
+// Обычная визуальная анимация врага.
+if (hurt_timer <= 0 && ai_state != EnemyAIState.ATTACK)
 {
-    if (hsp != 0)
+    if (!grounded)
     {
-        sprite_index = sprite_idle;
+        sprite_index = sprite_jump;
+        image_speed = 1;
+    }
+    else if (hsp != 0)
+    {
+        sprite_index = sprite_run;
         image_speed = 1;
     }
     else
