@@ -45,14 +45,14 @@ function scr_movement_horizontal(_player, _input)
     scr_movement_move_horizontal(_player);
 }
 
-/// Collision body сущности.
-/// Левая/правая граница: относительно центра X.
-/// Верх/низ: относительно точки ног Y.
+/// Проверка твёрдого тайла.
 function scr_movement_solid(_player, _x, _y)
 {
     return tilemap_get_at_pixel(_player.ground, _x, _y) != 0;
 }
 
+/// Низкоуровневое горизонтальное движение.
+/// Collision body имеет собственный размер и не зависит от sprite bbox.
 function scr_movement_move_horizontal(_player)
 {
     var _amount = abs(_player.hsp);
@@ -116,11 +116,12 @@ function scr_movement_vertical_collision(_player)
         var _left = _player.x - _player.body_width * 0.5;
         var _middle = _player.x;
         var _right = _player.x + _player.body_width * 0.5;
+        var _bottom = _next_y - _player.body_bottom_offset;
 
         if (
-            scr_movement_solid(_player, _left, _next_y - _player.body_bottom_offset) ||
-            scr_movement_solid(_player, _middle, _next_y - _player.body_bottom_offset) ||
-            scr_movement_solid(_player, _right, _next_y - _player.body_bottom_offset)
+            scr_movement_solid(_player, _left, _bottom) ||
+            scr_movement_solid(_player, _middle, _bottom) ||
+            scr_movement_solid(_player, _right, _bottom)
         )
         {
             if (_direction > 0)
@@ -134,6 +135,19 @@ function scr_movement_vertical_collision(_player)
 
         _player.y = _next_y;
     }
+}
+
+/// Синхронизация состояния grounded после создания сущности.
+/// Нужна, потому что первая проверка вертикальной физики ещё не успела
+/// определить, стоит ли сущность на платформе.
+function scr_movement_initialize_grounded(_player)
+{
+    var _feet_y = _player.y - _player.body_bottom_offset;
+
+    _player.grounded =
+        scr_movement_solid(_player, _player.x, _feet_y + 1) ||
+        scr_movement_solid(_player, _player.x - _player.body_width * 0.5, _feet_y + 1) ||
+        scr_movement_solid(_player, _player.x + _player.body_width * 0.5, _feet_y + 1);
 }
 
 function scr_movement_animation(_player)
