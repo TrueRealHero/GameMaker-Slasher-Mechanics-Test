@@ -32,8 +32,8 @@
   "nineSlice":null,
   "origin":7,
   "parent":{
-    "name":"Test 6Slasher Ver2",
-    "path":"Test 6Slasher Ver2.yyp",
+    "name":"EnemySprites",
+    "path":"folders/EnemySprites.yy",
   },
   "preMultiplyAlpha":false,
   "resourceType":"GMSprite",
