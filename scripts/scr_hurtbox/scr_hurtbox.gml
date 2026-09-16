@@ -53,9 +53,9 @@ function scr_hurtbox_receive_damage(_hurtbox, _damage, _knockback, _source)
     }
 
     show_debug_message(
-        "ENEMY HIT | DAMAGE: "
+        "HURTBOX HIT | DAMAGE: "
         + string(_damage)
-        + " | HP: "
+        + " | TARGET HP: "
         + string(_owner.hp)
     );
 }
